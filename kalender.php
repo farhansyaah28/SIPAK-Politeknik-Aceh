@@ -412,7 +412,7 @@ if (!empty($user_name)) {
                         <p class="text-on-surface-variant text-[11px]">Pantau ketersediaan jadwal gedung Politeknik Aceh secara real-time demi mencegah double booking.</p>
                     </div>
                     <div>
-                        <form method="GET" action="kalender.php" class="flex gap-xs items-center">
+                        <form method="GET" action="kalender.php" class="flex flex-wrap gap-xs sm:gap-sm items-center">
                             <label for="id_gedung" class="text-[11px] font-semibold text-primary text-nowrap self-center">Filter Ruangan:</label>
                             <select name="id_gedung" id="id_gedung" class="bg-surface border border-outline rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary/20 text-on-surface" onchange="this.form.submit()">
                                 <option value="">-- Semua Gedung --</option>
@@ -786,7 +786,7 @@ require_once 'includes/navbar_tailwind.php';
                     <p class="text-on-surface-variant text-[11px]">Pantau ketersediaan jadwal gedung Politeknik Aceh secara real-time demi mencegah double booking.</p>
                 </div>
                 <div>
-                    <form method="GET" action="kalender.php" class="flex gap-xs items-center">
+                    <form method="GET" action="kalender.php" class="flex flex-wrap gap-xs sm:gap-sm items-center">
                         <label for="id_gedung" class="text-[11px] font-semibold text-primary text-nowrap self-center">Filter Ruangan:</label>
                         <select name="id_gedung" id="id_gedung" class="bg-surface border border-outline rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary-container text-on-surface" onchange="this.form.submit()">
                             <option value="">-- Semua Gedung --</option>
