@@ -4,7 +4,7 @@ require_once '../config/database.php';
 require_once '../config/session.php';
 require_once '../config/functions.php';
 
-check_admin();
+check_pimpinan();
 
 $user_name = $_SESSION['user_name'] ?? 'Pengguna';
 $role = get_user_role();
@@ -53,11 +53,8 @@ while ($c = $stmt_chart->fetch()) {
     $monthly_income[(int)$c['bulan']] = (float)$c['total'];
 }
 
-// Sidebar count for Admin
+// Sidebar count for Admin (pimpinan doesn't show pending payments)
 $pending_val = 0;
-if ($role === 'admin') {
-    $pending_val = $pdo->query("SELECT COUNT(*) FROM pembayaran WHERE status_validasi = 'Menunggu'")->fetchColumn();
-}
 
 // User Initials for Avatar
 $names = explode(' ', $user_name);
@@ -218,7 +215,7 @@ if (count($names) > 0) {
                 color: black !important;
                 overflow: visible !important;
                 height: auto !important;
-            }
+                }
             aside {
                 display: none !important;
             }
@@ -281,60 +278,15 @@ if (count($names) > 0) {
         </div>
         
         <nav class="flex-1 space-y-0.5 overflow-y-auto">
-            <?php if ($role === 'pimpinan'): ?>
-                <div class="px-md py-xs text-primary-fixed-dim uppercase tracking-wider text-[9px] font-bold opacity-60">Pimpinan Menu</div>
-                <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="../pimpinan/index.php">
-                    <span class="material-symbols-outlined mr-2">dashboard</span>
-                    <span class="font-label-lg text-label-lg">Dashboard</span>
-                </a>
-                <a class="flex items-center px-md py-2 active-nav rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="laporan.php">
-                    <span class="material-symbols-outlined mr-2" style="font-variation-settings: 'FILL' 1;">analytics</span>
-                    <span class="font-label-lg text-label-lg font-bold">Laporan Rekap</span>
-                </a>
-            <?php else: ?>
-                <div class="px-md py-xs text-primary-fixed-dim uppercase tracking-wider text-[9px] font-bold opacity-60">Admin Menu</div>
-                <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="index.php">
-                    <span class="material-symbols-outlined mr-2">dashboard</span>
-                    <span class="font-label-lg text-label-lg">Dashboard</span>
-                </a>
-                <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="booking_kelola.php">
-                    <span class="material-symbols-outlined mr-2">receipt_long</span>
-                    <span class="font-label-lg text-label-lg">Kelola Booking</span>
-                </a>
-                <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none relative" href="pembayaran_validasi.php">
-                    <span class="material-symbols-outlined mr-2">price_check</span>
-                    <span class="font-label-lg text-label-lg">Validasi Bayar</span>
-                    <?php if ($pending_val > 0): ?>
-                        <span class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 bg-error-red text-white text-[9px] rounded-full flex items-center justify-center font-bold">
-                            <?= $pending_val ?>
-                        </span>
-                    <?php endif; ?>
-                </a>
-                <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="jadwal.php">
-                    <span class="material-symbols-outlined mr-2">calendar_month</span>
-                    <span class="font-label-lg text-label-lg">Jadwal Terpadu</span>
-                </a>
-                
-                <div class="h-[1px] bg-outline-muted/5 my-1.5 mx-md"></div>
-                <div class="px-md py-xs text-primary-fixed-dim uppercase tracking-wider text-[9px] font-bold opacity-60">Data Master</div>
-
-                <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="gedung_kelola.php">
-                    <span class="material-symbols-outlined mr-2">domain</span>
-                    <span class="font-label-lg text-label-lg">Data Gedung</span>
-                </a>
-                <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="aset_kelola.php">
-                    <span class="material-symbols-outlined mr-2">inventory_2</span>
-                    <span class="font-label-lg text-label-lg">Data Aset</span>
-                </a>
-                <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="penyewa_kelola.php">
-                    <span class="material-symbols-outlined mr-2">groups</span>
-                    <span class="font-label-lg text-label-lg">Data Penyewa</span>
-                </a>
-                <a class="flex items-center px-md py-2 active-nav rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="laporan.php">
-                    <span class="material-symbols-outlined mr-2" style="font-variation-settings: 'FILL' 1;">analytics</span>
-                    <span class="font-label-lg text-label-lg font-bold">Laporan Rekap</span>
-                </a>
-            <?php endif; ?>
+            <div class="px-md py-xs text-primary-fixed-dim uppercase tracking-wider text-[9px] font-bold opacity-60">Pimpinan Menu</div>
+            <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="index.php">
+                <span class="material-symbols-outlined mr-2">dashboard</span>
+                <span class="font-label-lg text-label-lg">Dashboard</span>
+            </a>
+            <a class="flex items-center px-md py-2 active-nav rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="laporan.php">
+                <span class="material-symbols-outlined mr-2" style="font-variation-settings: 'FILL' 1;">analytics</span>
+                <span class="font-label-lg text-label-lg font-bold">Laporan Rekap</span>
+            </a>
         </nav>
 
         <!-- User Profile & Logout at bottom -->
@@ -345,7 +297,7 @@ if (count($names) > 0) {
                 </div>
                 <div class="flex flex-col overflow-hidden">
                     <p class="text-xs font-semibold text-white truncate leading-none"><?= htmlspecialchars($user_name) ?></p>
-                    <p class="text-[9px] text-primary-fixed-dim opacity-70 mt-0.5 truncate font-medium"><?= $role === 'pimpinan' ? 'Pimpinan' : 'Administrator' ?></p>
+                    <p class="text-[9px] text-primary-fixed-dim opacity-70 mt-0.5 truncate font-medium">Pimpinan</p>
                 </div>
             </div>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-error-container/20 hover:text-error rounded-lg mx-2 transition-all decoration-none font-semibold text-xs" href="../logout.php">
@@ -526,8 +478,6 @@ if (count($names) > 0) {
                 </div>
             </div>
         </main>
-        
-
     </div>
 </div>
 

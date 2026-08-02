@@ -195,7 +195,7 @@ if (count($names) > 0) {
                 <span class="material-symbols-outlined mr-2" style="font-variation-settings: 'FILL' 1;">dashboard</span>
                 <span class="font-label-lg text-label-lg font-bold">Dashboard</span>
             </a>
-            <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="../admin/laporan.php">
+            <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="laporan.php">
                 <span class="material-symbols-outlined mr-2">analytics</span>
                 <span class="font-label-lg text-label-lg font-semibold">Laporan Rekap</span>
             </a>

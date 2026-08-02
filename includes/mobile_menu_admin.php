@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="material-symbols-outlined mr-2">dashboard</span>
                         <span class="text-xs font-semibold">Dashboard</span>
                     </a>
-                    <a class="flex items-center px-md py-2.5 text-white hover:bg-surface-container-low/10 rounded-lg mr-2 my-0.5 transition-all decoration-none <?= basename($_SERVER['PHP_SELF']) == 'laporan.php' ? 'bg-warning-amber/20 text-warning-amber font-bold border-l-4 border-warning-amber' : '' ?>" href="<?= $is_subfolder_active ? '../admin/laporan.php' : 'admin/laporan.php' ?>">
+                    <a class="flex items-center px-md py-2.5 text-white hover:bg-surface-container-low/10 rounded-lg mr-2 my-0.5 transition-all decoration-none <?= basename($_SERVER['PHP_SELF']) == 'laporan.php' ? 'bg-warning-amber/20 text-warning-amber font-bold border-l-4 border-warning-amber' : '' ?>" href="<?= $is_subfolder_active ? 'laporan.php' : 'pimpinan/laporan.php' ?>">
                         <span class="material-symbols-outlined mr-2">analytics</span>
                         <span class="text-xs font-semibold">Laporan Rekap</span>
                     </a>

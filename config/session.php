@@ -30,7 +30,7 @@ function check_admin() {
 }
 
 function check_pimpinan() {
-    if (!is_logged_in() || ($_SESSION['user_role'] !== 'pimpinan' && $_SESSION['user_role'] !== 'admin')) {
+    if (!is_logged_in() || $_SESSION['user_role'] !== 'pimpinan') {
         set_flash('danger', 'Akses ditolak. Halaman ini khusus untuk Pimpinan.');
         header('Location: ../login.php');
         exit;

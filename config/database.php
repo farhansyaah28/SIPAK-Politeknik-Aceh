@@ -14,10 +14,10 @@ if ($is_localhost) {
 } else {
     // InfinityFree Remote Database Settings
     // TODO: Sesuaikan dengan kredensial dari Control Panel InfinityFree Anda
-    $host = 'sqlXXX.infinityfree.com'; // Cari "MySQL Hostname" di InfinityFree Client Area
-    $db   = 'if0_XXXXXXXX_siipak';     // Cari "MySQL Database Name" yang Anda buat
-    $user = 'if0_XXXXXXXX';            // Cari "MySQL Username" di InfinityFree
-    $pass = 'your_infinityfree_pass';  // Cari "MySQL Password" di InfinityFree (bisa dilihat di Client Area)
+    $host = 'sql210.infinityfree.com'; // Cari "MySQL Hostname" di InfinityFree Client Area
+    $db   = 'if0_42550355_siipak';     // Cari "MySQL Database Name" yang Anda buat
+    $user = 'if0_42550355';            // Cari "MySQL Username" di InfinityFree
+    $pass = '5kdmwcmBSkdYjrt';  // Cari "MySQL Password" di InfinityFree (bisa dilihat di Client Area)
 }
 $charset = 'utf8mb4';
 
