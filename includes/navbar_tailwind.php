@@ -15,11 +15,6 @@ $kontak_link = ($current_page === 'index.php') ? '#footer-contact' : $base_path 
 ?>
 <header class="w-full sticky top-0 z-40 bg-[#eef2f6]/95 backdrop-blur-md border-b border-outline-variant/40 shadow-xs no-print transition-all duration-300 py-sm">
     <div class="max-w-[1140px] mx-auto px-lg flex justify-between items-center w-full">
-        <!-- Mobile Menu Trigger Button (Visible only on Mobile) -->
-        <button id="public-menu-btn" class="md:hidden flex items-center justify-center p-1.5 rounded-lg text-primary hover:bg-primary/5 transition-all duration-200 mr-2" onclick="togglePublicMobileDrawer(true)">
-            <span class="material-symbols-outlined text-lg">menu</span>
-        </button>
-
         <!-- Logo -->
         <div class="flex items-center gap-md">
             <div class="bg-primary p-1.5 rounded-xl shadow-xs">
@@ -55,6 +50,11 @@ $kontak_link = ($current_page === 'index.php') ? '#footer-contact' : $base_path 
                 <a href="<?= $base_path ?>register.php" class="text-on-surface-variant hover:text-primary transition-colors font-bold text-xs decoration-none ml-2">Daftar</a>
             <?php endif; ?>
         </div>
+
+        <!-- Mobile Menu Trigger Button (Visible only on Mobile) -->
+        <button id="public-menu-btn" class="md:hidden flex items-center justify-center p-1.5 rounded-lg text-primary hover:bg-primary/5 transition-all duration-200" onclick="togglePublicMobileDrawer(true)">
+            <span class="material-symbols-outlined text-lg">menu</span>
+        </button>
     </div>
 </header>
 
