@@ -2,10 +2,23 @@
 // SIIPAK - Database Connection Configuration
 // Politeknik Aceh Building & Asset Rental System
 
-$host = '127.0.0.1';
-$db   = 'siipak';
-$user = 'root';
-$pass = '';
+// Auto-detect environment: Localhost (XAMPP) vs Remote Host (InfinityFree)
+$is_localhost = in_array($_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1']) || $_SERVER['SERVER_NAME'] === 'localhost';
+
+if ($is_localhost) {
+    // Localhost XAMPP Settings
+    $host = '127.0.0.1';
+    $db   = 'siipak';
+    $user = 'root';
+    $pass = '';
+} else {
+    // InfinityFree Remote Database Settings
+    // TODO: Sesuaikan dengan kredensial dari Control Panel InfinityFree Anda
+    $host = 'sqlXXX.infinityfree.com'; // Cari "MySQL Hostname" di InfinityFree Client Area
+    $db   = 'if0_XXXXXXXX_siipak';     // Cari "MySQL Database Name" yang Anda buat
+    $user = 'if0_XXXXXXXX';            // Cari "MySQL Username" di InfinityFree
+    $pass = 'your_infinityfree_pass';  // Cari "MySQL Password" di InfinityFree (bisa dilihat di Client Area)
+}
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
