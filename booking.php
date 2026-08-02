@@ -446,10 +446,6 @@ if (count($names) > 0) {
                                 </div>
                             </div>
 
-                            <!-- Action Submit -->
-                            <button type="submit" class="w-full h-9 bg-primary hover:bg-primary-container text-on-primary font-bold text-xs rounded-lg flex items-center justify-center gap-xs shadow-md active:scale-95 transition-all">
-                                <span class="material-symbols-outlined text-sm">send</span> Kirim Permohonan Booking
-                            </button>
                         </form>
                     </div>
                 </div>
@@ -539,6 +535,13 @@ if (count($names) > 0) {
                             </div>
                         </div>
                         <p class="text-[9px] text-primary-fixed opacity-75 italic">* Harga sewa gedung dan aset dikalikan dengan durasi hari sewa secara proporsional.</p>
+                    </div>
+
+                    <!-- Action Submit (HTML5 Form association) -->
+                    <div class="bg-white p-sm rounded-2xl shadow-soft border border-outline-variant">
+                        <button type="submit" form="bookingForm" class="w-full h-10 bg-primary hover:bg-primary-container text-on-primary font-bold text-xs rounded-xl flex items-center justify-center gap-xs shadow-md active:scale-95 transition-all cursor-pointer">
+                            <span class="material-symbols-outlined text-sm">send</span> Kirim Permohonan Booking
+                        </button>
                     </div>
 
                     <!-- Steps Guide Card -->
