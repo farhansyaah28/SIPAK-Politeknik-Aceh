@@ -553,7 +553,7 @@ if (!empty($user_name)) {
         
         var calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
-            height: 480,
+            height: 'auto',
             dayMaxEvents: true,
             headerToolbar: {
                 left: 'prev,next today',
@@ -923,7 +923,7 @@ require_once 'includes/navbar_tailwind.php';
         
         var calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
-            height: 480,
+            height: 'auto',
             dayMaxEvents: true,
             headerToolbar: {
                 left: 'prev,next today',
