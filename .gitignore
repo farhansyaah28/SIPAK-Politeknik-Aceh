@@ -1,0 +1,19 @@
+# SIIPAK - Git Ignore configuration
+
+# IDE & AI Tool Files
+.gemini/
+.agents/
+.vscode/
+.idea/
+
+# Scratch & Temporary Folders
+scratch/
+*.log
+*.tmp
+*.bak
+
+# OS temporary files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store

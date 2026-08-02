@@ -1,0 +1,245 @@
+/* SIIPAK - Sistem Informasi Penyewaan Gedung dan Aset Kampus Politeknik Aceh */
+/* Custom Stylesheet & Design System */
+
+:root {
+  --primary-navy: #0f2744;
+  --secondary-navy: #1e3a5f;
+  --accent-blue: #2563eb;
+  --accent-hover: #1d4ed8;
+  --gold-accent: #f59e0b;
+  --light-bg: #f8fafc;
+  --card-shadow: 0 10px 25px -5px rgba(15, 39, 68, 0.08), 0 8px 10px -6px rgba(15, 39, 68, 0.04);
+  --card-hover-shadow: 0 20px 30px -10px rgba(15, 39, 68, 0.15);
+  --border-radius: 12px;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: #f1f5f9;
+  color: #334155;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+}
+
+/* Navbar Branding */
+.navbar-custom {
+  background: linear-gradient(135deg, var(--primary-navy) 0%, var(--secondary-navy) 100%);
+  padding: 0.9rem 1.5rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.navbar-brand-logo {
+  height: 42px;
+  width: auto;
+  object-fit: contain;
+  margin-right: 12px;
+}
+
+.brand-text-title {
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+  font-size: 1.25rem;
+}
+
+.brand-text-sub {
+  font-size: 0.75rem;
+  color: #93c5fd;
+  display: block;
+  font-weight: 500;
+}
+
+.nav-link {
+  color: #cbd5e1 !important;
+  font-weight: 500;
+  padding: 0.5rem 1rem !important;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover, .nav-link.active {
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Hero Banner */
+.hero-section {
+  background: linear-gradient(135deg, rgba(15, 39, 68, 0.94) 0%, rgba(30, 58, 95, 0.90) 100%), url('../images/campus_bg.jpg') center/cover no-repeat;
+  color: #ffffff;
+  padding: 4.5rem 1.5rem;
+  border-radius: 0 0 24px 24px;
+  margin-bottom: 2.5rem;
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.hero-subtitle {
+  color: #e2e8f0;
+  font-size: 1.15rem;
+  max-width: 700px;
+}
+
+/* Cards & Components */
+.custom-card {
+  border: none;
+  border-radius: var(--border-radius);
+  background: #ffffff;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  overflow: hidden;
+}
+
+.custom-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--card-hover-shadow);
+}
+
+.card-img-wrapper {
+  height: 210px;
+  position: relative;
+  overflow: hidden;
+  background-color: #e2e8f0;
+}
+
+.card-img-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.custom-card:hover .card-img-wrapper img {
+  transform: scale(1.05);
+}
+
+.price-tag {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(15, 39, 68, 0.85);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* Status Badges */
+.badge {
+  padding: 0.55em 0.85em;
+  font-weight: 600;
+  font-size: 0.82rem;
+  border-radius: 6px;
+}
+
+/* Table Styling */
+.table-custom {
+  background: #ffffff;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+}
+
+.table-custom thead {
+  background-color: var(--primary-navy);
+  color: #ffffff;
+}
+
+.table-custom thead th {
+  font-weight: 600;
+  padding: 1rem;
+  border: none;
+}
+
+.table-custom tbody td {
+  padding: 0.9rem 1rem;
+  vertical-align: middle;
+}
+
+/* Dashboard Stat Cards */
+.stat-card {
+  border-left: 5px solid var(--accent-blue);
+  border-radius: var(--border-radius);
+  background: #ffffff;
+  box-shadow: var(--card-shadow);
+  padding: 1.25rem 1.5rem;
+}
+
+.stat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--accent-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+}
+
+/* Footer */
+.footer-custom {
+  background-color: var(--primary-navy);
+  color: #94a3b8;
+  padding: 2.5rem 0 1.5rem 0;
+  margin-top: 4rem;
+  font-size: 0.9rem;
+}
+
+.footer-custom h5 {
+  color: #ffffff;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.footer-custom a {
+  color: #cbd5e1;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-custom a:hover {
+  color: #ffffff;
+}
+
+/* Print Stylesheet for Reports */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .no-print, .navbar-custom, .footer-custom, .btn, .alert, nav, sidebar {
+    display: none !important;
+  }
+  .container, .container-fluid {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .card, .table-custom {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+  .print-header {
+    display: block !important;
+    text-align: center;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #000;
+    padding-bottom: 1rem;
+  }
+}
+
+.print-header {
+  display: none;
+}

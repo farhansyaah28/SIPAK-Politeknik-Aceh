@@ -1,0 +1,205 @@
+<?php
+// SIIPAK - Booking Processor & Overbooking Prevention
+require_once 'config/database.php';
+require_once 'config/session.php';
+require_once 'config/functions.php';
+
+check_penyewa();
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: booking.php');
+    exit;
+}
+
+$id_penyewa        = $_SESSION['user_id'];
+$id_gedung         = (int)($_POST['id_gedung'] ?? 0);
+$nama_kegiatan     = sanitize($_POST['nama_kegiatan'] ?? '');
+$deskripsi         = sanitize($_POST['deskripsi_kegiatan'] ?? '');
+$tanggal_mulai     = $_POST['tanggal_mulai'] ?? '';
+$tanggal_selesai   = $_POST['tanggal_selesai'] ?? '';
+
+if (empty($id_gedung) || empty($nama_kegiatan) || empty($tanggal_mulai) || empty($tanggal_selesai)) {
+    set_flash('danger', 'Semua bidang bertanda bintang (*) wajib diisi.');
+    header("Location: booking.php?id_gedung=$id_gedung");
+    exit;
+}
+
+if ($tanggal_selesai < $tanggal_mulai) {
+    set_flash('danger', 'Tanggal selesai acara tidak boleh lebih awal dari tanggal mulai.');
+    header("Location: booking.php?id_gedung=$id_gedung");
+    exit;
+}
+
+if ($tanggal_mulai < date('Y-m-d')) {
+    set_flash('danger', 'Tanggal mulai acara tidak boleh di masa lalu (sebelum hari ini).');
+    header("Location: booking.php?id_gedung=$id_gedung");
+    exit;
+}
+
+// 1. Algoritma Penguncian & Pengecekan Bentrok Jadwal Real-Time
+if (cek_bentrok_jadwal($pdo, $id_gedung, $tanggal_mulai, $tanggal_selesai)) {
+    set_flash('danger', 'OVERBOOKING PREVENTION: Tanggal ' . format_tanggal($tanggal_mulai) . ' s/d ' . format_tanggal($tanggal_selesai) . ' sudah terisi atau dikunci untuk kegiatan lain di gedung ini. Silakan pilih rentang tanggal lain.');
+    header("Location: booking.php?id_gedung=$id_gedung");
+    exit;
+}
+
+// 2. Hitung Total Pembayaran Berdasarkan Durasi Hari & Sewa Aset Tambahan
+$stmt_gedung = $pdo->prepare("SELECT * FROM gedung WHERE id_gedung = :id");
+$stmt_gedung->execute([':id' => $id_gedung]);
+$gedung = $stmt_gedung->fetch();
+
+if (!$gedung) {
+    set_flash('danger', 'Gedung tidak ditemukan.');
+    header('Location: gedung.php');
+    exit;
+}
+
+$d1 = new DateTime($tanggal_mulai);
+$d2 = new DateTime($tanggal_selesai);
+$durasi_hari = $d2->diff($d1)->days + 1; // Minimal 1 hari
+
+$total = $gedung['harga_sewa'] * $durasi_hari;
+
+// Tambahkan harga sewa aset jika dipilih
+$selected_assets = [];
+if (!empty($_POST['assets']) && is_array($_POST['assets'])) {
+    foreach ($_POST['assets'] as $asset_id => $asset_data) {
+        if (!empty($asset_data['selected'])) {
+            $qty = !empty($asset_data['jumlah']) ? (int)$asset_data['jumlah'] : 1;
+            $selected_assets[(int)$asset_id] = $qty;
+        }
+    }
+}
+
+if (!empty($selected_assets)) {
+    $stmt_aset = $pdo->prepare("SELECT * FROM aset WHERE id_aset = :id");
+    foreach ($selected_assets as $asset_id => $qty) {
+        $stmt_aset->execute([':id' => $asset_id]);
+        $aset = $stmt_aset->fetch();
+        if ($aset) {
+            // Validasi jumlah unit agar tidak melebihi stok yang tersedia
+            if ($qty < 1) {
+                $qty = 1;
+                $selected_assets[$asset_id] = 1;
+            } elseif ($qty > $aset['jumlah']) {
+                $qty = $aset['jumlah'];
+                $selected_assets[$asset_id] = $aset['jumlah'];
+            }
+            $total += ($aset['harga_sewa_tambahan'] * $qty * $durasi_hari);
+        }
+    }
+}
+
+// 3. Upload Kartu Identitas (KTP/KTM/Instansi)
+$foto_identitas = '';
+
+// Check if image is captured via webcam (base64)
+if (isset($_POST['captured_image']) && !empty($_POST['captured_image'])) {
+    $base64_img = $_POST['captured_image'];
+    if (preg_match('/^data:image\/(\w+);base64,/', $base64_img, $type)) {
+        $data = substr($base64_img, strpos($base64_img, ',') + 1);
+        $type = strtolower($type[1]); // png, jpg, jpeg
+
+        if (!in_array($type, ['png', 'jpg', 'jpeg'])) {
+            set_flash('danger', 'Format foto kamera tidak didukung.');
+            header("Location: booking.php?id_gedung=$id_gedung");
+            exit;
+        }
+
+        $data = base64_decode($data);
+        if ($data === false) {
+            set_flash('danger', 'Gagal memproses foto kamera.');
+            header("Location: booking.php?id_gedung=$id_gedung");
+            exit;
+        }
+
+        $new_name = 'identitas_' . time() . '_' . rand(1000, 9999) . '.' . $type;
+        if (file_put_contents('assets/uploads/' . $new_name, $data) === false) {
+            set_flash('danger', 'Gagal menyimpan foto kamera ke server.');
+            header("Location: booking.php?id_gedung=$id_gedung");
+            exit;
+        }
+        $foto_identitas = $new_name;
+    } else {
+        set_flash('danger', 'Data foto kamera tidak valid.');
+        header("Location: booking.php?id_gedung=$id_gedung");
+        exit;
+    }
+} else {
+    // Normal file upload
+    if (!isset($_FILES['foto_identitas']) || $_FILES['foto_identitas']['error'] !== UPLOAD_ERR_OK) {
+        set_flash('danger', 'Anda wajib mengunggah foto kartu identitas (KTP/KTM/Instansi) untuk verifikasi legalitas.');
+        header("Location: booking.php?id_gedung=$id_gedung");
+        exit;
+    }
+
+    $file = $_FILES['foto_identitas'];
+    $allowed_exts = ['jpg', 'jpeg', 'png', 'pdf'];
+    $file_ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+
+    if (!in_array($file_ext, $allowed_exts)) {
+        set_flash('danger', 'Format file identitas tidak didukung. Silakan gunakan format JPG, PNG, atau PDF.');
+        header("Location: booking.php?id_gedung=$id_gedung");
+        exit;
+    }
+
+    if ($file['size'] > 2 * 1024 * 1024) {
+        set_flash('danger', 'Ukuran file identitas terlalu besar. Maksimal 2MB.');
+        header("Location: booking.php?id_gedung=$id_gedung");
+        exit;
+    }
+
+    $new_name = 'identitas_' . time() . '_' . rand(1000, 9999) . '.' . $file_ext;
+    if (!move_uploaded_file($file['tmp_name'], 'assets/uploads/' . $new_name)) {
+        set_flash('danger', 'Gagal mengunggah file identitas ke server. Silakan periksa izin folder assets/uploads.');
+        header("Location: booking.php?id_gedung=$id_gedung");
+        exit;
+    }
+    $foto_identitas = $new_name;
+}
+
+// 4. Simpan Transaksi Baru dengan Status 'Menunggu Pembayaran'
+$kode_transaksi = generate_kode_transaksi($pdo);
+
+// Setup legacy fallback columns
+$first_asset_id = !empty($selected_assets) ? array_key_first($selected_assets) : null;
+$first_asset_qty = $first_asset_id ? $selected_assets[$first_asset_id] : 1;
+
+$stmt = $pdo->prepare("INSERT INTO transaksi 
+    (kode_transaksi, id_penyewa, id_gedung, id_aset, jumlah_aset, nama_kegiatan, deskripsi_kegiatan, tanggal_mulai, tanggal_selesai, total_pembayaran, status_transaksi, foto_identitas) 
+    VALUES (:kode, :id_penyewa, :id_gedung, :id_aset, :jumlah_aset, :nama_kegiatan, :deskripsi, :tgl_mulai, :tgl_selesai, :total, 'Menunggu Pembayaran', :foto_id)");
+
+$stmt->execute([
+    ':kode'           => $kode_transaksi,
+    ':id_penyewa'      => $id_penyewa,
+    ':id_gedung'       => $id_gedung,
+    ':id_aset'         => $first_asset_id,
+    ':jumlah_aset'     => $first_asset_qty,
+    ':nama_kegiatan'   => $nama_kegiatan,
+    ':deskripsi'       => $deskripsi,
+    ':tgl_mulai'       => $tanggal_mulai,
+    ':tgl_selesai'     => $tanggal_selesai,
+    ':total'           => $total,
+    ':foto_id'         => $foto_identitas
+]);
+
+$id_transaksi = $pdo->lastInsertId();
+
+// Simpan detail semua aset tambahan terpilih ke tabel transaksi_aset
+if (!empty($selected_assets)) {
+    $stmt_ins_link = $pdo->prepare("INSERT INTO transaksi_aset (id_transaksi, id_aset, jumlah_aset) VALUES (:id_trx, :id_aset, :jumlah)");
+    foreach ($selected_assets as $asset_id => $qty) {
+        $stmt_ins_link->execute([
+            ':id_trx'  => $id_transaksi,
+            ':id_aset' => $asset_id,
+            ':jumlah'  => $qty
+        ]);
+    }
+}
+
+// Notifikasi ke Admin
+add_notification($pdo, null, 1, 'Pemesanan Baru Masuk', "Penyewa " . $_SESSION['user_name'] . " melakukan booking untuk $nama_kegiatan ($kode_transaksi).", "admin/pembayaran_validasi.php");
+
+set_flash('success', 'Permohonan booking berhasil dibuat! Silakan lakukan pengunggahan bukti transfer DP atau Pelunasan.');
+header("Location: pembayaran_upload.php?id_transaksi=$id_transaksi");
+exit;
