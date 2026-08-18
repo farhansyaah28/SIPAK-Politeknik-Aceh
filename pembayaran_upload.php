@@ -506,8 +506,9 @@ if (count($names) > 0) {
                         <div class="space-y-base">
                             <div class="flex items-center justify-between gap-2 mb-1">
                                 <h4 class="text-primary flex items-center gap-xs font-bold"><span class="material-symbols-outlined text-sm">info</span> Informasi Sewa</h4>
-                                <a href="nota.php?token=<?= $transaksi['token_kuitansi'] ?>" target="_blank" class="inline-flex items-center gap-xs bg-slate-800 hover:bg-slate-950 text-white font-bold text-[9px] px-2.5 py-1 rounded shadow-sm hover:shadow transition-all decoration-none">
-                                    <span class="material-symbols-outlined text-[12px]">description</span> Cetak Nota (Invoice)
+                                <a href="nota.php?token=<?= $transaksi['token_kuitansi'] ?>" target="_blank" class="inline-flex items-center gap-xs bg-white border border-outline-variant text-primary hover:bg-surface-container-low font-bold text-[10px] px-2.5 py-1.5 rounded-lg shadow-xs transition-all duration-200 decoration-none cursor-pointer">
+                                    <span class="material-symbols-outlined text-[14px]">description</span>
+                                    <span>Cetak Nota</span>
                                 </a>
                             </div>
                             <div class="p-sm bg-surface rounded-xl border border-outline-variant/60 space-y-xs text-[11px]">
