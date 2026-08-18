@@ -54,7 +54,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $jumlah_bayar = (float)($_POST['jumlah_bayar'] ?? 0);
     $jenis_pembayaran = $_POST['jenis_pembayaran'] ?? 'DP';
 
-    if ($has_pending) {
+    if (in_array($transaksi['status_transaksi'], ['Dibatalkan', 'Ditolak'])) {
+        $error = 'Transaksi ini telah dibatalkan atau ditolak. Anda tidak dapat melakukan pembayaran.';
+    } elseif ($has_pending) {
         $error = 'Anda memiliki unggahan bukti transfer yang sedang dalam antrean verifikasi Admin. Harap tunggu hingga proses selesai.';
     } elseif ($jumlah_bayar <= 0) {
         $error = 'Nominal pembayaran harus lebih dari Rp 0.';
@@ -384,7 +386,27 @@ if (count($names) > 0) {
                     </div>
 
                     <!-- Upload Bukti Transfer Form -->
-                    <?php if ($sisa_pembayaran > 0 || $transaksi['status_transaksi'] === 'Menunggu Pembayaran'): ?>
+                    <?php if (in_array($transaksi['status_transaksi'], ['Dibatalkan', 'Ditolak'])): ?>
+                        <!-- Dibatalkan / Ditolak Banner -->
+                        <div class="bg-error-container/20 border border-error/20 p-md rounded-2xl flex items-start gap-xs bento-card">
+                            <span class="material-symbols-outlined text-error text-2xl flex-shrink-0">cancel</span>
+                            <div class="space-y-base text-xs w-full">
+                                <h4 class="font-bold text-error">Transaksi <?= $transaksi['status_transaksi'] === 'Dibatalkan' ? 'Dibatalkan' : 'Ditolak' ?></h4>
+                                <p class="text-on-surface-variant leading-relaxed">
+                                    <?php if ($transaksi['status_transaksi'] === 'Dibatalkan'): ?>
+                                        Transaksi pemesanan ini telah dibatalkan (karena melewati batas pembayaran atau dibatalkan oleh pengguna/admin). Anda tidak dapat melakukan pembayaran untuk transaksi yang sudah dibatalkan.
+                                    <?php else: ?>
+                                        Transaksi pemesanan ini telah ditolak oleh Admin. Silakan lakukan pemesanan gedung yang baru.
+                                    <?php endif; ?>
+                                </p>
+                                <div class="pt-2">
+                                    <a href="riwayat_booking.php" class="inline-flex items-center gap-xs bg-primary hover:bg-primary-container text-white font-bold text-[11px] px-3.5 py-1.5 rounded-lg hover:shadow-md active:scale-95 transition-all decoration-none">
+                                        Kembali ke Transaksi
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    <?php elseif ($sisa_pembayaran > 0 && in_array($transaksi['status_transaksi'], ['Menunggu Pembayaran', 'DP', 'Cicilan'])): ?>
                         <?php if ($has_pending): ?>
                             <div class="bg-white rounded-2xl p-md border border-outline-variant shadow-soft bento-card text-center flex flex-col items-center justify-center space-y-sm">
                                 <div class="w-12 h-12 rounded-full bg-warning-amber/10 flex items-center justify-center text-warning-amber animate-pulse">

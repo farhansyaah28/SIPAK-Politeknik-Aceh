@@ -437,7 +437,7 @@ if (count($names) > 0) {
                                                             Kuitansi
                                                         </a>
                                                     </div>
-                                                <?php elseif ($status === 'Dibatalkan'): ?>
+                                                <?php elseif ($status === 'Dibatalkan' || $status === 'Ditolak'): ?>
                                                     <a href="pembayaran_upload.php?id_transaksi=<?= $b['id_transaksi'] ?>" class="text-primary font-bold text-[10px] px-2.5 py-1 rounded-lg border border-primary hover:bg-primary/5 transition-all decoration-none inline-block">
                                                         Lihat Detail
                                                     </a>
