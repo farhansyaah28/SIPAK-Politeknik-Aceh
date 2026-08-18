@@ -504,7 +504,12 @@ if (count($names) > 0) {
                         </div>
 
                         <div class="space-y-base">
-                            <h4 class="text-primary flex items-center gap-xs font-bold"><span class="material-symbols-outlined text-sm">info</span> Informasi Sewa</h4>
+                            <div class="flex items-center justify-between gap-2 mb-1">
+                                <h4 class="text-primary flex items-center gap-xs font-bold"><span class="material-symbols-outlined text-sm">info</span> Informasi Sewa</h4>
+                                <a href="nota.php?token=<?= $transaksi['token_kuitansi'] ?>" target="_blank" class="inline-flex items-center gap-xs bg-slate-800 hover:bg-slate-950 text-white font-bold text-[9px] px-2.5 py-1 rounded shadow-sm hover:shadow transition-all decoration-none">
+                                    <span class="material-symbols-outlined text-[12px]">description</span> Cetak Nota (Invoice)
+                                </a>
+                            </div>
                             <div class="p-sm bg-surface rounded-xl border border-outline-variant/60 space-y-xs text-[11px]">
                                 <div class="flex flex-col">
                                     <span class="text-on-surface-variant">Gedung / Aula:</span>
@@ -572,16 +577,6 @@ if (count($names) > 0) {
                             </div>
                         </div>
 
-                        <!-- Action section inside the card footer -->
-                        <div class="pt-sm border-t border-outline-variant/60 flex items-center justify-between mt-sm">
-                            <div class="flex flex-col">
-                                <strong class="text-primary font-bold text-[10px]">Nota Tagihan Resmi (Invoice)</strong>
-                                <span class="text-[9px] text-on-surface-variant">Gunakan untuk pencatatan/SPJ fisik.</span>
-                            </div>
-                            <a href="nota.php?token=<?= $transaksi['token_kuitansi'] ?>" target="_blank" class="inline-flex items-center gap-xs bg-surface-container hover:bg-surface-container-high text-primary font-bold text-[10px] px-2.5 py-1.5 rounded-lg border border-outline-variant/60 hover:shadow-xs transition-all decoration-none">
-                                <span class="material-symbols-outlined text-[14px]">description</span> Cetak Nota (Invoice)
-                            </a>
-                        </div>
                     </div>
                 </div>
 
