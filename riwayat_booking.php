@@ -353,15 +353,15 @@ if (count($names) > 0) {
                         <table class="w-full text-left border-collapse align-middle">
                             <thead>
                                 <tr class="bg-surface-container-low text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">
-                                    <th class="px-lg py-2 min-w-[140px] whitespace-nowrap">Kode</th>
-                                    <th class="px-lg py-2 min-w-[200px] whitespace-nowrap">Aset / Gedung</th>
-                                    <th class="px-lg py-2 min-w-[150px] whitespace-nowrap">Tanggal</th>
-                                    <th class="px-lg py-2 text-right min-w-[110px] whitespace-nowrap">Termin 1</th>
-                                    <th class="px-lg py-2 text-right min-w-[110px] whitespace-nowrap">Termin 2</th>
-                                    <th class="px-lg py-2 text-right min-w-[110px] whitespace-nowrap">Sisa</th>
-                                    <th class="px-lg py-2 text-right min-w-[110px] whitespace-nowrap">Total</th>
-                                    <th class="px-lg py-2 text-center min-w-[110px] whitespace-nowrap">Status</th>
-                                    <th class="px-lg py-2 text-center min-w-[150px] whitespace-nowrap">Aksi</th>
+                                    <th class="px-lg py-2 min-w-[140px]">Kode</th>
+                                    <th class="px-lg py-2 min-w-[200px]">Aset / Gedung</th>
+                                    <th class="px-lg py-2 min-w-[150px]">Tanggal</th>
+                                    <th class="px-lg py-2 text-right min-w-[110px]">Termin 1</th>
+                                    <th class="px-lg py-2 text-right min-w-[110px]">Termin 2</th>
+                                    <th class="px-lg py-2 text-right min-w-[110px]">Sisa</th>
+                                    <th class="px-lg py-2 text-right min-w-[110px]">Total</th>
+                                    <th class="px-lg py-2 text-center min-w-[110px]">Status</th>
+                                    <th class="px-lg py-2 text-center min-w-[150px]">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-outline-variant/60 text-xs text-on-surface" id="transactionTable">
@@ -387,7 +387,7 @@ if (count($names) > 0) {
                                         }
                                         ?>
                                         <tr class="hover:bg-surface-container-lowest transition-colors">
-                                            <td class="px-lg py-2.5 font-bold text-primary whitespace-nowrap"><?= htmlspecialchars($b['kode_transaksi']) ?></td>
+                                            <td class="px-lg py-2.5 font-bold text-primary"><?= htmlspecialchars($b['kode_transaksi']) ?></td>
                                             <td class="px-lg py-2.5">
                                                 <div class="flex items-center gap-xs">
                                                     <div class="w-8 h-8 rounded-lg bg-surface-container-high overflow-hidden flex-shrink-0">
@@ -413,10 +413,10 @@ if (count($names) > 0) {
                                                      </span>
                                                  <?php endif; ?>
                                              </td>
-                                              <td class="px-lg py-2.5 text-right font-semibold text-primary whitespace-nowrap"><?= format_rupiah($b['termin1'] ?? 0) ?></td>
-                                              <td class="px-lg py-2.5 text-right font-semibold text-primary whitespace-nowrap"><?= format_rupiah($b['termin2'] ?? 0) ?></td>
-                                              <td class="px-lg py-2.5 text-right font-bold text-error-red whitespace-nowrap"><?= format_rupiah(max(0, $b['total_pembayaran'] - (($b['termin1'] ?? 0) + ($b['termin2'] ?? 0)))) ?></td>
-                                              <td class="px-lg py-2.5 text-right font-extrabold text-primary whitespace-nowrap"><?= format_rupiah($b['total_pembayaran']) ?></td>
+                                              <td class="px-lg py-2.5 text-right font-semibold text-primary"><?= format_rupiah($b['termin1'] ?? 0) ?></td>
+                                              <td class="px-lg py-2.5 text-right font-semibold text-primary"><?= format_rupiah($b['termin2'] ?? 0) ?></td>
+                                              <td class="px-lg py-2.5 text-right font-bold text-error-red"><?= format_rupiah(max(0, $b['total_pembayaran'] - (($b['termin1'] ?? 0) + ($b['termin2'] ?? 0)))) ?></td>
+                                              <td class="px-lg py-2.5 text-right font-extrabold text-primary"><?= format_rupiah($b['total_pembayaran']) ?></td>
                                             <td class="px-lg py-2.5 text-center">
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full <?= $badge ?> text-[10px] font-bold">
                                                     <?= htmlspecialchars($status) ?>
