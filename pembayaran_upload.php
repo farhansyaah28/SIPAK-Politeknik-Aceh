@@ -502,6 +502,15 @@ if (count($names) > 0) {
                                     <span class="text-on-surface-variant">Pelaksanaan:</span>
                                     <span class="text-primary font-semibold"><?= format_tanggal($transaksi['tanggal_mulai']) ?> s/d <?= format_tanggal($transaksi['tanggal_selesai']) ?></span>
                                 </div>
+                                <div class="flex flex-col">
+                                    <span class="text-on-surface-variant">Durasi Sewa:</span>
+                                    <?php
+                                    $d1 = new DateTime($transaksi['tanggal_mulai']);
+                                    $d2 = new DateTime($transaksi['tanggal_selesai']);
+                                    $durasi_sewa = $d2->diff($d1)->days + 1;
+                                    ?>
+                                    <strong class="text-primary font-bold"><?= $durasi_sewa ?> Hari</strong>
+                                </div>
                             </div>
                         </div>
 
