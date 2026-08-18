@@ -95,6 +95,7 @@ DROP TABLE IF EXISTS `transaksi`;
 CREATE TABLE `transaksi` (
   `id_transaksi` INT AUTO_INCREMENT PRIMARY KEY,
   `kode_transaksi` VARCHAR(30) NOT NULL UNIQUE,
+  `token_kuitansi` VARCHAR(64) UNIQUE DEFAULT NULL,
   `id_penyewa` INT NOT NULL,
   `id_gedung` INT NOT NULL,
   `id_aset` INT DEFAULT NULL,
@@ -114,9 +115,9 @@ CREATE TABLE `transaksi` (
   FOREIGN KEY (`id_admin`) REFERENCES `admin` (`id_admin`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO `transaksi` (`id_transaksi`, `kode_transaksi`, `id_penyewa`, `id_gedung`, `id_aset`, `id_admin`, `nama_kegiatan`, `deskripsi_kegiatan`, `tanggal_mulai`, `tanggal_selesai`, `total_pembayaran`, `status_transaksi`) VALUES
-(1, 'TRX-20260801-001', 1, 1, 1, 1, 'Seminar Nasional Teknologi AI & IoT 2026', 'Seminar dan pameran hasil karya inovasi mahasiswa dan industri.', '2026-08-15', '2026-08-16', 3500000.00, 'Lunas'),
-(2, 'TRX-20260801-002', 2, 2, 4, 1, 'Resepsi Pernikahan Sarah & Rizky', 'Acara resepsi pernikahan dengan undangan 200 orang.', '2026-08-20', '2026-08-20', 2000000.00, 'DP');
+INSERT INTO `transaksi` (`id_transaksi`, `kode_transaksi`, `token_kuitansi`, `id_penyewa`, `id_gedung`, `id_aset`, `id_admin`, `nama_kegiatan`, `deskripsi_kegiatan`, `tanggal_mulai`, `tanggal_selesai`, `total_pembayaran`, `status_transaksi`) VALUES
+(1, 'TRX-20260801-001', 'a8f9c12b4e5f6d7c8b9a0123456789ab', 1, 1, 1, 1, 'Seminar Nasional Teknologi AI & IoT 2026', 'Seminar dan pameran hasil karya inovasi mahasiswa dan industri.', '2026-08-15', '2026-08-16', 3500000.00, 'Lunas'),
+(2, 'TRX-20260801-002', 'b9f0d23c5f6g7h8d9c0b1234567890cd', 2, 2, 4, 1, 'Resepsi Pernikahan Sarah & Rizky', 'Acara resepsi pernikahan dengan undangan 200 orang.', '2026-08-20', '2026-08-20', 2000000.00, 'DP');
 
 -- --------------------------------------------------------
 -- 6. Tabel Pembayaran (Rincian Termin / Bertahap)

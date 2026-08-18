@@ -82,63 +82,49 @@ document.addEventListener('DOMContentLoaded', () => {
                 <?php if ($is_penyewa_menu): ?>
                     <!-- Renter/Penyewa Menu Links -->
                     <a class="flex items-center px-md py-2.5 text-white hover:bg-surface-container-low/10 rounded-lg mr-2 my-0.5 transition-all decoration-none <?= basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'bg-warning-amber/20 text-warning-amber font-bold border-l-4 border-warning-amber' : '' ?>" href="<?= $logout_prefix ?>dashboard.php">
-                        <span class="material-symbols-outlined mr-2">dashboard</span>
                         <span class="text-xs font-semibold">Dashboard</span>
                     </a>
                     <a class="flex items-center px-md py-2.5 text-white hover:bg-surface-container-low/10 rounded-lg mr-2 my-0.5 transition-all decoration-none <?= basename($_SERVER['PHP_SELF']) == 'booking.php' ? 'bg-warning-amber/20 text-warning-amber font-bold border-l-4 border-warning-amber' : '' ?>" href="<?= $logout_prefix ?>booking.php">
-                        <span class="material-symbols-outlined mr-2">add_box</span>
                         <span class="text-xs font-semibold">Booking Baru</span>
                     </a>
                     <a class="flex items-center px-md py-2.5 text-white hover:bg-surface-container-low/10 rounded-lg mr-2 my-0.5 transition-all decoration-none <?= basename($_SERVER['PHP_SELF']) == 'riwayat_booking.php' ? 'bg-warning-amber/20 text-warning-amber font-bold border-l-4 border-warning-amber' : '' ?>" href="<?= $logout_prefix ?>riwayat_booking.php">
-                        <span class="material-symbols-outlined mr-2">receipt_long</span>
                         <span class="text-xs font-semibold">Transaksi Saya</span>
                     </a>
                     <a class="flex items-center px-md py-2.5 text-white hover:bg-surface-container-low/10 rounded-lg mr-2 my-0.5 transition-all decoration-none <?= basename($_SERVER['PHP_SELF']) == 'kalender.php' ? 'bg-warning-amber/20 text-warning-amber font-bold border-l-4 border-warning-amber' : '' ?>" href="<?= $logout_prefix ?>kalender.php">
-                        <span class="material-symbols-outlined mr-2">calendar_month</span>
-                        <span class="text-xs font-semibold">Jadwal Aset</span>
+                        <span class="text-xs font-semibold">Kalender Kegiatan</span>
                     </a>
                 <?php elseif ($is_pimpinan_menu): ?>
                     <!-- Pimpinan Menu Links -->
                     <a class="flex items-center px-md py-2.5 text-white hover:bg-surface-container-low/10 rounded-lg mr-2 my-0.5 transition-all decoration-none <?= basename($_SERVER['PHP_SELF']) == 'index.php' ? 'bg-warning-amber/20 text-warning-amber font-bold border-l-4 border-warning-amber' : '' ?>" href="<?= $is_subfolder_active ? 'index.php' : 'pimpinan/index.php' ?>">
-                        <span class="material-symbols-outlined mr-2">dashboard</span>
                         <span class="text-xs font-semibold">Dashboard</span>
                     </a>
                     <a class="flex items-center px-md py-2.5 text-white hover:bg-surface-container-low/10 rounded-lg mr-2 my-0.5 transition-all decoration-none <?= basename($_SERVER['PHP_SELF']) == 'laporan.php' ? 'bg-warning-amber/20 text-warning-amber font-bold border-l-4 border-warning-amber' : '' ?>" href="<?= $is_subfolder_active ? 'laporan.php' : 'pimpinan/laporan.php' ?>">
-                        <span class="material-symbols-outlined mr-2">analytics</span>
                         <span class="text-xs font-semibold">Laporan Rekap</span>
                     </a>
                 <?php else: ?>
                     <!-- Admin Menu Links -->
                     <a class="flex items-center px-md py-2.5 text-white hover:bg-surface-container-low/10 rounded-lg mr-2 my-0.5 transition-all decoration-none <?= basename($_SERVER['PHP_SELF']) == 'index.php' ? 'bg-warning-amber/20 text-warning-amber font-bold border-l-4 border-warning-amber' : '' ?>" href="<?= $link_prefix ?>index.php">
-                        <span class="material-symbols-outlined mr-2">dashboard</span>
                         <span class="text-xs font-semibold">Dashboard</span>
                     </a>
                     <a class="flex items-center px-md py-2.5 text-white hover:bg-surface-container-low/10 rounded-lg mr-2 my-0.5 transition-all decoration-none <?= basename($_SERVER['PHP_SELF']) == 'gedung_kelola.php' ? 'bg-warning-amber/20 text-warning-amber font-bold border-l-4 border-warning-amber' : '' ?>" href="<?= $link_prefix ?>gedung_kelola.php">
-                        <span class="material-symbols-outlined mr-2">corporate_fare</span>
-                        <span class="text-xs font-semibold">Kelola Gedung</span>
+                        <span class="text-xs font-semibold">Kelola Ruang</span>
                     </a>
                     <a class="flex items-center px-md py-2.5 text-white hover:bg-surface-container-low/10 rounded-lg mr-2 my-0.5 transition-all decoration-none <?= basename($_SERVER['PHP_SELF']) == 'aset_kelola.php' ? 'bg-warning-amber/20 text-warning-amber font-bold border-l-4 border-warning-amber' : '' ?>" href="<?= $link_prefix ?>aset_kelola.php">
-                        <span class="material-symbols-outlined mr-2">widgets</span>
                         <span class="text-xs font-semibold">Kelola Aset</span>
                     </a>
                     <a class="flex items-center px-md py-2.5 text-white hover:bg-surface-container-low/10 rounded-lg mr-2 my-0.5 transition-all decoration-none <?= basename($_SERVER['PHP_SELF']) == 'booking_kelola.php' ? 'bg-warning-amber/20 text-warning-amber font-bold border-l-4 border-warning-amber' : '' ?>" href="<?= $link_prefix ?>booking_kelola.php">
-                        <span class="material-symbols-outlined mr-2">book_online</span>
                         <span class="text-xs font-semibold">Kelola Booking</span>
                     </a>
                     <a class="flex items-center px-md py-2.5 text-white hover:bg-surface-container-low/10 rounded-lg mr-2 my-0.5 transition-all decoration-none <?= basename($_SERVER['PHP_SELF']) == 'pembayaran_validasi.php' ? 'bg-warning-amber/20 text-warning-amber font-bold border-l-4 border-warning-amber' : '' ?>" href="<?= $link_prefix ?>pembayaran_validasi.php">
-                        <span class="material-symbols-outlined mr-2">price_check</span>
                         <span class="text-xs font-semibold">Validasi Bayar</span>
                     </a>
                     <a class="flex items-center px-md py-2.5 text-white hover:bg-surface-container-low/10 rounded-lg mr-2 my-0.5 transition-all decoration-none <?= basename($_SERVER['PHP_SELF']) == 'penyewa_kelola.php' ? 'bg-warning-amber/20 text-warning-amber font-bold border-l-4 border-warning-amber' : '' ?>" href="<?= $link_prefix ?>penyewa_kelola.php">
-                        <span class="material-symbols-outlined mr-2">groups</span>
                         <span class="text-xs font-semibold">Kelola Penyewa</span>
                     </a>
                     <a class="flex items-center px-md py-2.5 text-white hover:bg-surface-container-low/10 rounded-lg mr-2 my-0.5 transition-all decoration-none <?= basename($_SERVER['PHP_SELF']) == 'jadwal.php' ? 'bg-warning-amber/20 text-warning-amber font-bold border-l-4 border-warning-amber' : '' ?>" href="<?= $link_prefix ?>jadwal.php">
-                        <span class="material-symbols-outlined mr-2">calendar_month</span>
-                        <span class="text-xs font-semibold">Jadwal Sewa</span>
+                        <span class="text-xs font-semibold">Kalender Kegiatan</span>
                     </a>
                     <a class="flex items-center px-md py-2.5 text-white hover:bg-surface-container-low/10 rounded-lg mr-2 my-0.5 transition-all decoration-none <?= basename($_SERVER['PHP_SELF']) == 'laporan.php' ? 'bg-warning-amber/20 text-warning-amber font-bold border-l-4 border-warning-amber' : '' ?>" href="<?= $link_prefix ?>laporan.php">
-                        <span class="material-symbols-outlined mr-2">analytics</span>
                         <span class="text-xs font-semibold">Laporan Rekap</span>
                     </a>
                 <?php endif; ?>
@@ -155,7 +141,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
                 <a class="flex items-center px-md py-2.5 text-primary-fixed-dim hover:bg-error-container/20 hover:text-error rounded-lg mx-2 transition-all decoration-none font-semibold text-xs cursor-pointer" href="<?= $logout_prefix ?>logout.php">
-                    <span class="material-symbols-outlined mr-2 text-sm">logout</span>
                     <span>Keluar</span>
                 </a>
             </div>

@@ -30,8 +30,72 @@ if (!empty($selected_gedung)) {
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
+$rows = $stmt->fetchAll();
+
+// Group transactions by id_penyewa to merge contiguous/overlapping bookings
+$groups = [];
+foreach ($rows as $row) {
+    $key = $row['id_penyewa'];
+    $groups[$key][] = $row;
+}
+
+$merged_rows = [];
+foreach ($groups as $key => $group_rows) {
+    // Sort transactions within group by tanggal_mulai
+    usort($group_rows, function($a, $b) {
+        return strcmp($a['tanggal_mulai'], $b['tanggal_mulai']);
+    });
+    
+    $current = $group_rows[0];
+    for ($i = 1; $i < count($group_rows); $i++) {
+        $next = $group_rows[$i];
+        
+        $current_end = $current['tanggal_selesai'];
+        $next_start = $next['tanggal_mulai'];
+        
+        // Contiguous check: next starts on or before current_end + 1 day
+        $max_allowed_gap_date = date('Y-m-d', strtotime($current_end . ' +1 day'));
+        
+        if ($next_start <= $max_allowed_gap_date) {
+            // Overlapping or contiguous: extend end date
+            if ($next['tanggal_selesai'] > $current['tanggal_selesai']) {
+                $current['tanggal_selesai'] = $next['tanggal_selesai'];
+            }
+            // Combine fields
+            $current['nama_kegiatan'] .= " & " . $next['nama_kegiatan'];
+            $current['kode_transaksi'] .= ", " . $next['kode_transaksi'];
+            if (strpos($current['nama_gedung'], $next['nama_gedung']) === false) {
+                $current['nama_gedung'] .= ", " . $next['nama_gedung'];
+            }
+            
+            // Priority for status: Lunas > DP/Cicilan > Menunggu Pembayaran
+            $status_priority = [
+                'Lunas' => 3,
+                'Selesai' => 3,
+                'DP' => 2,
+                'Cicilan' => 2,
+                'Menunggu Pembayaran' => 1
+            ];
+            
+            $curr_status = $current['status_transaksi'];
+            $next_status = $next['status_transaksi'];
+            
+            $curr_prio = $status_priority[$curr_status] ?? 0;
+            $next_prio = $status_priority[$next_status] ?? 0;
+            
+            if ($next_prio > $curr_prio) {
+                $current['status_transaksi'] = $next['status_transaksi'];
+            }
+        } else {
+            $merged_rows[] = $current;
+            $current = $next;
+        }
+    }
+    $merged_rows[] = $current;
+}
+
 $events = [];
-while ($row = $stmt->fetch()) {
+foreach ($merged_rows as $row) {
     // Color codes based on transaction status
     $color = '#2563eb'; // DP / Cicilan: Blue
     if ($row['status_transaksi'] === 'Lunas') {
@@ -39,7 +103,7 @@ while ($row = $stmt->fetch()) {
     }
 
     $events[] = [
-        'title' => '[' . htmlspecialchars($row['nama_gedung']) . '] ' . htmlspecialchars($row['nama_penyewa']) . ' - ' . htmlspecialchars($row['nama_kegiatan']),
+        'title' => 'Full',
         'start' => $row['tanggal_mulai'] . 'T08:00:00',
         'end'   => $row['tanggal_selesai'] . 'T18:00:00',
         'color' => $color,
@@ -73,7 +137,7 @@ if (count($names) > 0) {
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Jadwal Terpadu | SIPAK Politeknik Aceh</title>
+    <title>Kalender Kegiatan | SIPAK Politeknik Aceh</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <!-- FullCalendar CDN -->
@@ -315,6 +379,11 @@ if (count($names) > 0) {
             transition: transform 0.15s ease, box-shadow 0.15s ease !important;
         }
 
+        .fc-event, .fc-event-title, .fc-event-title-container {
+            white-space: normal !important;
+            word-wrap: break-word !important;
+        }
+
         .fc-v-event:hover, .fc-h-event:hover {
             transform: translateY(-1px) scale(1.01) !important;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06) !important;
@@ -391,15 +460,12 @@ if (count($names) > 0) {
             <div class="px-md py-xs text-primary-fixed-dim uppercase tracking-wider text-[9px] font-bold opacity-60">Admin Menu</div>
             
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="index.php">
-                <span class="material-symbols-outlined mr-2">dashboard</span>
                 <span class="font-label-lg text-label-lg font-semibold">Dashboard</span>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="booking_kelola.php">
-                <span class="material-symbols-outlined mr-2">receipt_long</span>
                 <span class="font-label-lg text-label-lg">Kelola Booking</span>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none relative" href="pembayaran_validasi.php">
-                <span class="material-symbols-outlined mr-2">price_check</span>
                 <span class="font-label-lg text-label-lg">Validasi Bayar</span>
                 <?php if ($pending_val > 0): ?>
                     <span class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 bg-error-red text-white text-[9px] rounded-full flex items-center justify-center font-bold">
@@ -408,27 +474,22 @@ if (count($names) > 0) {
                 <?php endif; ?>
             </a>
             <a class="flex items-center px-md py-2 active-nav rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="jadwal.php">
-                <span class="material-symbols-outlined mr-2" style="font-variation-settings: 'FILL' 1;">calendar_month</span>
-                <span class="font-label-lg text-label-lg font-bold">Jadwal Terpadu</span>
+                <span class="font-label-lg text-label-lg font-bold">Kalender Kegiatan</span>
             </a>
             
             <div class="h-[1px] bg-outline-muted/5 my-1.5 mx-md"></div>
             <div class="px-md py-xs text-primary-fixed-dim uppercase tracking-wider text-[9px] font-bold opacity-60">Data Master</div>
 
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="gedung_kelola.php">
-                <span class="material-symbols-outlined mr-2">domain</span>
-                <span class="font-label-lg text-label-lg">Data Gedung</span>
+                <span class="font-label-lg text-label-lg">Data Ruang</span>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="aset_kelola.php">
-                <span class="material-symbols-outlined mr-2">inventory_2</span>
                 <span class="font-label-lg text-label-lg">Data Aset</span>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="penyewa_kelola.php">
-                <span class="material-symbols-outlined mr-2">groups</span>
                 <span class="font-label-lg text-label-lg">Data Penyewa</span>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="laporan.php">
-                <span class="material-symbols-outlined mr-2">analytics</span>
                 <span class="font-label-lg text-label-lg">Laporan Rekap</span>
             </a>
         </nav>
@@ -445,7 +506,6 @@ if (count($names) > 0) {
                 </div>
             </div>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-error-container/20 hover:text-error rounded-lg mx-2 transition-all decoration-none font-semibold text-xs" href="../logout.php">
-                <span class="material-symbols-outlined mr-2 text-sm">logout</span>
                 <span>Keluar</span>
             </a>
         </div>
@@ -472,7 +532,7 @@ if (count($names) > 0) {
             <!-- Header Section -->
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-sm">
                 <div class="space-y-0.5">
-                    <h1 class="font-display-md text-display-md text-primary font-bold">Jadwal Terpadu Penyewaan</h1>
+                    <h1 class="font-display-md text-display-md text-primary font-bold">Kalender Kegiatan</h1>
                     <p class="text-xs text-on-surface-variant">Pantau seluruh agenda pemakaian fasilitas gedung &amp; aula yang telah disetujui (DP/Lunas).</p>
                 </div>
                 

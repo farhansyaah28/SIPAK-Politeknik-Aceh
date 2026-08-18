@@ -59,9 +59,9 @@ $user_name = $_SESSION['user_name'] ?? 'Pengguna';
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="<?= $base_path ?>admin/booking_kelola.php"><i class="bi bi-journal-check me-2"></i>Kelola Booking</a></li>
                             <li><a class="dropdown-item" href="<?= $base_path ?>admin/pembayaran_validasi.php"><i class="bi bi-credit-card-checks me-2"></i>Validasi Pembayaran</a></li>
-                            <li><a class="dropdown-item" href="<?= $base_path ?>admin/jadwal.php"><i class="bi bi-calendar-range me-2"></i>Jadwal Terpadu</a></li>
+                            <li><a class="dropdown-item" href="<?= $base_path ?>admin/jadwal.php"><i class="bi bi-calendar-range me-2"></i>Kalender Kegiatan</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="<?= $base_path ?>admin/gedung_kelola.php"><i class="bi bi-building me-2"></i>Data Gedung</a></li>
+                            <li><a class="dropdown-item" href="<?= $base_path ?>admin/gedung_kelola.php"><i class="bi bi-building me-2"></i>Data Ruang</a></li>
                             <li><a class="dropdown-item" href="<?= $base_path ?>admin/aset_kelola.php"><i class="bi bi-box-seam me-2"></i>Data Aset</a></li>
                             <li><a class="dropdown-item" href="<?= $base_path ?>admin/penyewa_kelola.php"><i class="bi bi-people me-2"></i>Data Penyewa</a></li>
                             <li><hr class="dropdown-divider"></li>

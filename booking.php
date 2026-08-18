@@ -200,21 +200,17 @@ if (count($names) > 0) {
         <nav class="flex-1 space-y-0.5">
             <div class="px-md py-xs text-primary-fixed-dim uppercase tracking-wider text-[9px] font-bold opacity-60">Penyewa Menu</div>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="dashboard.php">
-                <span class="material-symbols-outlined mr-2">dashboard</span>
                 <span class="font-label-lg text-label-lg font-semibold">Dashboard</span>
             </a>
             <!-- Active Nav: Booking Baru -->
             <a class="flex items-center px-md py-2 active-nav rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="booking.php">
-                <span class="material-symbols-outlined mr-2" style="font-variation-settings: 'FILL' 1;">add_box</span>
                 <span class="font-label-lg text-label-lg font-bold">Booking Baru</span>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="riwayat_booking.php">
-                <span class="material-symbols-outlined mr-2">receipt_long</span>
                 <span class="font-label-lg text-label-lg font-semibold">Transaksi Saya</span>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="kalender.php">
-                <span class="material-symbols-outlined mr-2">calendar_month</span>
-                <span class="font-label-lg text-label-lg font-semibold">Jadwal Aset</span>
+                <span class="font-label-lg text-label-lg font-semibold">Kalender Kegiatan</span>
             </a>
         </nav>
         <div class="mt-auto px-md border-t border-outline/10 pt-md">
@@ -226,12 +222,11 @@ if (count($names) > 0) {
                     <p class="text-xs font-bold text-white truncate leading-tight"><?= htmlspecialchars($_SESSION['user_name']) ?></p>
                     <span class="text-[9px] text-primary-fixed-dim/60 font-medium tracking-wide mt-0.5">Penyewa</span>
                     <button type="button" onclick="openProfileModal()" class="mt-1 px-2 py-0.5 bg-white/10 hover:bg-white/20 text-warning-amber hover:text-white rounded text-[8px] font-extrabold uppercase tracking-wider transition-all flex items-center gap-1 w-fit cursor-pointer border-none outline-none">
-                        <span class="material-symbols-outlined text-[9px]">edit</span> Edit Profil
+                        Edit Profil
                     </button>
                 </div>
             </div>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-error-container/20 hover:text-error rounded-lg mx-2 transition-all decoration-none font-semibold text-xs mb-2" href="logout.php">
-                <span class="material-symbols-outlined mr-2 text-sm">logout</span>
                 <span>Keluar</span>
             </a>
         </div>

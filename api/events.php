@@ -21,8 +21,70 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $rows = $stmt->fetchAll();
 
-$events = [];
+// Group transactions by id_penyewa to merge contiguous/overlapping bookings
+$groups = [];
 foreach ($rows as $row) {
+    $key = $row['id_penyewa'];
+    $groups[$key][] = $row;
+}
+
+$merged_rows = [];
+foreach ($groups as $key => $group_rows) {
+    // Sort transactions within group by tanggal_mulai
+    usort($group_rows, function($a, $b) {
+        return strcmp($a['tanggal_mulai'], $b['tanggal_mulai']);
+    });
+    
+    $current = $group_rows[0];
+    for ($i = 1; $i < count($group_rows); $i++) {
+        $next = $group_rows[$i];
+        
+        $current_end = $current['tanggal_selesai'];
+        $next_start = $next['tanggal_mulai'];
+        
+        // Contiguous check: next starts on or before current_end + 1 day
+        $max_allowed_gap_date = date('Y-m-d', strtotime($current_end . ' +1 day'));
+        
+        if ($next_start <= $max_allowed_gap_date) {
+            // Overlapping or contiguous: extend end date
+            if ($next['tanggal_selesai'] > $current['tanggal_selesai']) {
+                $current['tanggal_selesai'] = $next['tanggal_selesai'];
+            }
+            // Combine fields
+            $current['nama_kegiatan'] .= " & " . $next['nama_kegiatan'];
+            $current['kode_transaksi'] .= ", " . $next['kode_transaksi'];
+            if (strpos($current['nama_gedung'], $next['nama_gedung']) === false) {
+                $current['nama_gedung'] .= ", " . $next['nama_gedung'];
+            }
+            
+            // Priority for status: Lunas > DP/Cicilan > Menunggu Pembayaran
+            $status_priority = [
+                'Lunas' => 3,
+                'Selesai' => 3,
+                'DP' => 2,
+                'Cicilan' => 2,
+                'Menunggu Pembayaran' => 1
+            ];
+            
+            $curr_status = $current['status_transaksi'];
+            $next_status = $next['status_transaksi'];
+            
+            $curr_prio = $status_priority[$curr_status] ?? 0;
+            $next_prio = $status_priority[$next_status] ?? 0;
+            
+            if ($next_prio > $curr_prio) {
+                $current['status_transaksi'] = $next['status_transaksi'];
+            }
+        } else {
+            $merged_rows[] = $current;
+            $current = $next;
+        }
+    }
+    $merged_rows[] = $current;
+}
+
+$events = [];
+foreach ($merged_rows as $row) {
     // FullCalendar end date is exclusive, so we add +1 day
     $end_date = date('Y-m-d', strtotime($row['tanggal_selesai'] . ' +1 day'));
     
@@ -35,7 +97,7 @@ foreach ($rows as $row) {
 
     $events[] = [
         'id' => $row['id_transaksi'],
-        'title' => $row['nama_kegiatan'] . ' [' . $row['nama_gedung'] . ']',
+        'title' => 'Full',
         'start' => $row['tanggal_mulai'],
         'end' => $end_date,
         'backgroundColor' => $color,
@@ -43,6 +105,7 @@ foreach ($rows as $row) {
         'textColor' => '#ffffff',
         'extendedProps' => [
             'kode_transaksi' => $row['kode_transaksi'],
+            'nama_kegiatan' => $row['nama_kegiatan'],
             'nama_gedung' => $row['nama_gedung'],
             'nama_penyewa' => $row['nama_penyewa'],
             'status' => $row['status_transaksi'],

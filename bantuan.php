@@ -194,7 +194,7 @@ if (!empty($user_name)) {
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="kalender.php">
                 <span class="material-symbols-outlined mr-2">calendar_month</span>
-                <span class="font-label-lg text-label-lg font-semibold">Jadwal Aset</span>
+                <span class="font-label-lg text-label-lg font-semibold">Kalender Kegiatan</span>
             </a>
         </nav>
         <div class="mt-auto px-md border-t border-outline/10 pt-md">

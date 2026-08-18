@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = (int)$_POST['id_gedung'];
         $stmt = $pdo->prepare("DELETE FROM gedung WHERE id_gedung = :id");
         $stmt->execute([':id' => $id]);
-        set_flash('success', "Gedung berhasil dihapus.");
+        set_flash('success', "Ruang berhasil dihapus.");
     }
     header('Location: gedung_kelola.php');
     exit;
@@ -108,7 +108,7 @@ if (count($names) > 0) {
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Master Gedung | SIPAK Politeknik Aceh</title>
+    <title>Master Ruang | SIPAK Politeknik Aceh</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <script id="tailwind-config">
@@ -262,15 +262,12 @@ if (count($names) > 0) {
             <div class="px-md py-xs text-primary-fixed-dim uppercase tracking-wider text-[9px] font-bold opacity-60">Admin Menu</div>
             
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="index.php">
-                <span class="material-symbols-outlined mr-2">dashboard</span>
                 <span class="font-label-lg text-label-lg font-semibold">Dashboard</span>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="booking_kelola.php">
-                <span class="material-symbols-outlined mr-2">receipt_long</span>
                 <span class="font-label-lg text-label-lg">Kelola Booking</span>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none relative" href="pembayaran_validasi.php">
-                <span class="material-symbols-outlined mr-2">price_check</span>
                 <span class="font-label-lg text-label-lg">Validasi Bayar</span>
                 <?php if ($pending_val > 0): ?>
                     <span class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 bg-error-red text-white text-[9px] rounded-full flex items-center justify-center font-bold">
@@ -279,27 +276,22 @@ if (count($names) > 0) {
                 <?php endif; ?>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="jadwal.php">
-                <span class="material-symbols-outlined mr-2">calendar_month</span>
-                <span class="font-label-lg text-label-lg">Jadwal Terpadu</span>
+                <span class="font-label-lg text-label-lg">Kalender Kegiatan</span>
             </a>
             
             <div class="h-[1px] bg-outline-muted/5 my-1.5 mx-md"></div>
             <div class="px-md py-xs text-primary-fixed-dim uppercase tracking-wider text-[9px] font-bold opacity-60">Data Master</div>
 
             <a class="flex items-center px-md py-2 active-nav rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="gedung_kelola.php">
-                <span class="material-symbols-outlined mr-2" style="font-variation-settings: 'FILL' 1;">domain</span>
-                <span class="font-label-lg text-label-lg font-bold">Data Gedung</span>
+                <span class="font-label-lg text-label-lg font-bold">Data Ruang</span>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="aset_kelola.php">
-                <span class="material-symbols-outlined mr-2">inventory_2</span>
                 <span class="font-label-lg text-label-lg">Data Aset</span>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="penyewa_kelola.php">
-                <span class="material-symbols-outlined mr-2">groups</span>
                 <span class="font-label-lg text-label-lg">Data Penyewa</span>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="laporan.php">
-                <span class="material-symbols-outlined mr-2">analytics</span>
                 <span class="font-label-lg text-label-lg">Laporan Rekap</span>
             </a>
         </nav>
@@ -316,7 +308,6 @@ if (count($names) > 0) {
                 </div>
             </div>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-error-container/20 hover:text-error rounded-lg mx-2 transition-all decoration-none font-semibold text-xs" href="../logout.php">
-                <span class="material-symbols-outlined mr-2 text-sm">logout</span>
                 <span>Keluar</span>
             </a>
         </div>
@@ -343,12 +334,12 @@ if (count($names) > 0) {
             <!-- Header Section -->
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-sm">
                 <div class="space-y-0.5">
-                    <h1 class="font-display-md text-display-md text-primary font-bold">Kelola Data Gedung &amp; Aula</h1>
-                    <p class="text-xs text-on-surface-variant">Tambahkan, ubah deskripsi, atur kapasitas, harga, atau hapus fasilitas gedung yang disewakan.</p>
+                    <h1 class="font-display-md text-display-md text-primary font-bold">Kelola Data Ruang</h1>
+                    <p class="text-xs text-on-surface-variant">Tambahkan, ubah deskripsi, atur kapasitas, harga, atau hapus fasilitas ruang yang disewakan.</p>
                 </div>
                 
                 <button onclick="openAddModal()" class="h-9 bg-primary hover:bg-primary-container text-white font-bold text-xs px-md rounded-lg flex items-center gap-xs shadow-md active:scale-95 transition-all">
-                    <span class="material-symbols-outlined text-sm">add</span> Tambah Gedung Baru
+                    <span class="material-symbols-outlined text-sm">add</span> Tambah Ruang Baru
                 </button>
             </div>
 
@@ -386,7 +377,7 @@ if (count($names) > 0) {
                         <thead>
                             <tr class="bg-surface-container-low border-b border-outline-variant text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">
                                 <th class="px-lg py-2">Foto</th>
-                                <th class="px-lg py-2">Nama Gedung</th>
+                                <th class="px-lg py-2">Nama Ruang</th>
                                 <th class="px-lg py-2">Kapasitas</th>
                                 <th class="px-lg py-2">Harga Sewa / Hari</th>
                                 <th class="px-lg py-2 text-center">Status</th>
@@ -396,7 +387,7 @@ if (count($names) > 0) {
                         <tbody class="divide-y divide-outline-variant/60 text-xs text-on-surface">
                             <?php if (empty($gedung_list)): ?>
                                 <tr>
-                                    <td colspan="6" class="px-lg py-6 text-center text-on-surface-variant">Belum ada data gedung terdaftar.</td>
+                                    <td colspan="6" class="px-lg py-6 text-center text-on-surface-variant">Belum ada data ruang terdaftar.</td>
                                 </tr>
                             <?php else: ?>
                                 <?php foreach ($gedung_list as $g): ?>
@@ -447,7 +438,7 @@ if (count($names) > 0) {
 <div id="gedungModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-md">
     <div class="bg-white rounded-2xl max-w-sm w-full overflow-hidden border border-outline-variant shadow-lg animate-scale-up">
         <div class="bg-primary text-white p-md flex items-center justify-between">
-            <h5 class="font-headline-md text-headline-md font-bold text-white" id="modalTitle">Tambah Gedung Baru</h5>
+            <h5 class="font-headline-md text-headline-md font-bold text-white" id="modalTitle">Tambah Ruang Baru</h5>
             <button type="button" onclick="closeGedungModal()" class="text-white hover:text-warning-amber transition-colors">
                 <span class="material-symbols-outlined text-sm">close</span>
             </button>
@@ -459,7 +450,7 @@ if (count($names) > 0) {
             
             <div class="p-md space-y-sm text-xs max-h-[70vh] overflow-y-auto">
                 <div class="space-y-base">
-                    <label for="nama_gedung" class="font-semibold text-primary block">Nama Gedung *</label>
+                    <label for="nama_gedung" class="font-semibold text-primary block">Nama Ruang *</label>
                     <input type="text" name="nama_gedung" id="m_nama_gedung" class="w-full py-1.5 px-md rounded-lg border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary bg-surface-container-lowest text-xs text-on-surface" required>
                 </div>
                 
@@ -483,12 +474,12 @@ if (count($names) > 0) {
                 </div>
 
                 <div class="space-y-base">
-                    <label for="foto" class="font-semibold text-primary block">Foto Gedung (Unggah untuk Ganti)</label>
+                    <label for="foto" class="font-semibold text-primary block">Foto Ruang (Unggah untuk Ganti)</label>
                     <input type="file" name="foto" id="m_foto" class="w-full text-xs text-on-surface-variant file:mr-md file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-surface-container-high file:text-primary hover:file:bg-outline-muted/40 cursor-pointer">
                 </div>
 
                 <div class="space-y-base">
-                    <label for="deskripsi" class="font-semibold text-primary block">Deskripsi &amp; Fasilitas Gedung</label>
+                    <label for="deskripsi" class="font-semibold text-primary block">Deskripsi &amp; Fasilitas Ruang</label>
                     <textarea name="deskripsi" id="m_deskripsi" rows="3" class="w-full p-md rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary bg-surface-container-lowest text-xs text-on-surface" placeholder="Fasilitas AC, Sound system, Kursi..."></textarea>
                     <span class="text-[10px] text-on-surface-variant block leading-relaxed mt-1">
                         💡 <strong>Informasi Aset Tambahan</strong>: Penambahan dan pengelolaan aset pendukung (seperti kursi Futura, meja, AC tambahan, dll.) dilakukan secara terpisah melalui menu <strong>"Master Aset"</strong> di sidebar.
@@ -523,7 +514,7 @@ if (count($names) > 0) {
 
 <script>
 function openAddModal() {
-    document.getElementById('modalTitle').innerText = 'Tambah Gedung Baru';
+    document.getElementById('modalTitle').innerText = 'Tambah Ruang Baru';
     document.getElementById('m_id_gedung').value = '';
     document.getElementById('m_nama_gedung').value = '';
     document.getElementById('m_kapasitas').value = '';
@@ -540,7 +531,7 @@ function openAddModal() {
 }
 
 function openEditModal(g) {
-    document.getElementById('modalTitle').innerText = 'Edit Data Gedung';
+    document.getElementById('modalTitle').innerText = 'Edit Data Ruang';
     document.getElementById('m_id_gedung').value = g.id_gedung;
     document.getElementById('m_nama_gedung').value = g.nama_gedung;
     document.getElementById('m_kapasitas').value = g.kapasitas;

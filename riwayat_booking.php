@@ -16,7 +16,9 @@ $stmt = $pdo->prepare("SELECT t.*, g.nama_gedung, g.harga_sewa, g.foto,
                          JOIN aset a ON ta.id_aset = a.id_aset
                          WHERE ta.id_transaksi = t.id_transaksi) AS nama_aset,
                         (SELECT COALESCE(SUM(jumlah_bayar), 0) FROM pembayaran p WHERE p.id_transaksi = t.id_transaksi AND p.status_validasi = 'Valid') AS total_terbayar,
-                        (SELECT COUNT(*) FROM pembayaran p WHERE p.id_transaksi = t.id_transaksi AND p.status_validasi = 'Menunggu') AS pending_verifikasi
+                        (SELECT COUNT(*) FROM pembayaran p WHERE p.id_transaksi = t.id_transaksi AND p.status_validasi = 'Menunggu') AS pending_verifikasi,
+                        (SELECT COALESCE(jumlah_bayar, 0) FROM pembayaran WHERE id_transaksi = t.id_transaksi AND status_validasi = 'Valid' ORDER BY id_pembayaran ASC LIMIT 1) AS termin1,
+                        (SELECT COALESCE(jumlah_bayar, 0) FROM pembayaran WHERE id_transaksi = t.id_transaksi AND status_validasi = 'Valid' ORDER BY id_pembayaran ASC LIMIT 1 OFFSET 1) AS termin2
                         FROM transaksi t
                         JOIN gedung g ON t.id_gedung = g.id_gedung
                         WHERE t.id_penyewa = :id
@@ -226,23 +228,19 @@ if (count($names) > 0) {
             <div class="px-md py-xs text-primary-fixed-dim uppercase tracking-wider text-[9px] font-bold opacity-60">Menu Utama</div>
             
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="dashboard.php">
-                <span class="material-symbols-outlined mr-2">dashboard</span>
                 <span class="font-label-lg text-label-lg font-semibold">Dashboard</span>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="booking.php">
-                <span class="material-symbols-outlined mr-2">add_box</span>
                 <span class="font-label-lg text-label-lg font-semibold">Booking Baru</span>
             </a>
             
             <!-- Active State Navigation -->
             <a class="flex items-center px-md py-2 active-nav rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="riwayat_booking.php">
-                <span class="material-symbols-outlined mr-2" style="font-variation-settings: 'FILL' 1;">receipt_long</span>
                 <span class="font-label-lg text-label-lg font-bold">Transaksi Saya</span>
             </a>
             
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="kalender.php">
-                <span class="material-symbols-outlined mr-2">calendar_month</span>
-                <span class="font-label-lg text-label-lg font-semibold">Jadwal Aset</span>
+                <span class="font-label-lg text-label-lg font-semibold">Kalender Kegiatan</span>
             </a>
         </nav>
 
@@ -256,12 +254,11 @@ if (count($names) > 0) {
                     <p class="text-xs font-bold text-white truncate leading-tight"><?= htmlspecialchars($_SESSION['user_name']) ?></p>
                     <span class="text-[9px] text-primary-fixed-dim/60 font-medium tracking-wide mt-0.5">Penyewa</span>
                     <button type="button" onclick="openProfileModal()" class="mt-1 px-2 py-0.5 bg-white/10 hover:bg-white/20 text-warning-amber hover:text-white rounded text-[8px] font-extrabold uppercase tracking-wider transition-all flex items-center gap-1 w-fit cursor-pointer border-none outline-none">
-                        <span class="material-symbols-outlined text-[9px]">edit</span> Edit Profil
+                        Edit Profil
                     </button>
                 </div>
             </div>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-error-container/20 hover:text-error rounded-lg mx-2 transition-all decoration-none font-semibold text-xs mb-2" href="logout.php">
-                <span class="material-symbols-outlined mr-2 text-sm">logout</span>
                 <span>Keluar</span>
             </a>
         </div>
@@ -356,18 +353,21 @@ if (count($names) > 0) {
                         <table class="w-full text-left border-collapse align-middle">
                             <thead>
                                 <tr class="bg-surface-container-low text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">
-                                    <th class="px-lg py-2">Kode</th>
-                                    <th class="px-lg py-2">Aset / Gedung</th>
-                                    <th class="px-lg py-2">Tanggal</th>
-                                    <th class="px-lg py-2 text-right">Total</th>
-                                    <th class="px-lg py-2 text-center">Status</th>
-                                    <th class="px-lg py-2 text-center">Aksi</th>
+                                    <th class="px-lg py-2 min-w-[140px]">Kode</th>
+                                    <th class="px-lg py-2 min-w-[200px]">Aset / Gedung</th>
+                                    <th class="px-lg py-2 min-w-[150px]">Tanggal</th>
+                                    <th class="px-lg py-2 text-right min-w-[110px]">Termin 1</th>
+                                    <th class="px-lg py-2 text-right min-w-[110px]">Termin 2</th>
+                                    <th class="px-lg py-2 text-right min-w-[110px]">Sisa</th>
+                                    <th class="px-lg py-2 text-right min-w-[110px]">Total</th>
+                                    <th class="px-lg py-2 text-center min-w-[110px]">Status</th>
+                                    <th class="px-lg py-2 text-center min-w-[150px]">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-outline-variant/60 text-xs text-on-surface" id="transactionTable">
                                 <?php if (empty($bookings)): ?>
                                     <tr>
-                                        <td colspan="6" class="px-lg py-6 text-center text-on-surface-variant">
+                                        <td colspan="9" class="px-lg py-6 text-center text-on-surface-variant">
                                             Belum ada data transaksi sewa.
                                         </td>
                                     </tr>
@@ -413,14 +413,10 @@ if (count($names) > 0) {
                                                      </span>
                                                  <?php endif; ?>
                                              </td>
-                                             <td class="px-lg py-2.5 text-right">
-                                                 <strong class="block font-bold text-on-surface"><?= format_rupiah($b['total_pembayaran']) ?></strong>
-                                                 <?php if ($status === 'DP' || $status === 'Cicilan'): ?>
-                                                     <span class="block text-[9px] text-primary font-semibold">Sisa: <?= format_rupiah($b['total_pembayaran'] - $b['total_terbayar']) ?></span>
-                                                 <?php elseif ($status === 'Menunggu Pembayaran'): ?>
-                                                     <span class="block text-[9px] text-secondary font-semibold">Sisa: <?= format_rupiah($b['total_pembayaran']) ?></span>
-                                                 <?php endif; ?>
-                                             </td>
+                                              <td class="px-lg py-2.5 text-right font-semibold text-primary"><?= format_rupiah($b['termin1'] ?? 0) ?></td>
+                                              <td class="px-lg py-2.5 text-right font-semibold text-primary"><?= format_rupiah($b['termin2'] ?? 0) ?></td>
+                                              <td class="px-lg py-2.5 text-right font-bold text-error-red"><?= format_rupiah(max(0, $b['total_pembayaran'] - (($b['termin1'] ?? 0) + ($b['termin2'] ?? 0)))) ?></td>
+                                              <td class="px-lg py-2.5 text-right font-extrabold text-primary"><?= format_rupiah($b['total_pembayaran']) ?></td>
                                             <td class="px-lg py-2.5 text-center">
                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full <?= $badge ?> text-[10px] font-bold">
                                                     <?= htmlspecialchars($status) ?>
@@ -437,7 +433,7 @@ if (count($names) > 0) {
                                                         <a href="pembayaran_upload.php?id_transaksi=<?= $b['id_transaksi'] ?>" class="text-primary font-bold text-[10px] px-2 py-1 rounded-lg border border-primary hover:bg-primary/5 transition-all decoration-none inline-block">
                                                             Detail
                                                         </a>
-                                                        <a href="kuitansi.php?id_transaksi=<?= $b['id_transaksi'] ?>" target="_blank" class="bg-success-green hover:bg-success-green/90 text-white font-bold text-[10px] px-2 py-1 rounded-lg hover:shadow-md transition-all decoration-none inline-block">
+                                                        <a href="kuitansi.php?token=<?= $b['token_kuitansi'] ?>" target="_blank" class="bg-success-green hover:bg-success-green/90 text-white font-bold text-[10px] px-2 py-1 rounded-lg hover:shadow-md transition-all decoration-none inline-block">
                                                             Kuitansi
                                                         </a>
                                                     </div>

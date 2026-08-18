@@ -4,13 +4,10 @@ require_once 'config/database.php';
 require_once 'config/session.php';
 require_once 'config/functions.php';
 
-// Proteksi: Harus login
-if (!is_logged_in()) {
-    header('Location: login.php');
-    exit;
-}
+// Kuitansi dengan token aman (token_kuitansi) dapat diakses tanpa login
+// agar scan QR Code dari HP dapat langsung memverifikasi kuitansi.
 
-$id_transaksi = isset($_GET['id_transaksi']) ? (int)$_GET['id_transaksi'] : 0;
+$token = isset($_GET['token']) ? preg_replace('/[^a-f0-9]/i', '', $_GET['token']) : '';
 $user_role = $_SESSION['user_role'] ?? '';
 $user_id = $_SESSION['user_id'] ?? 0;
 
@@ -19,10 +16,10 @@ $sql = "SELECT t.*, g.nama_gedung, g.harga_sewa AS harga_gedung, py.nama AS nama
         FROM transaksi t
         JOIN gedung g ON t.id_gedung = g.id_gedung
         JOIN penyewa py ON t.id_penyewa = py.id_penyewa
-        WHERE t.id_transaksi = :id_trx";
+        WHERE t.token_kuitansi = :token";
 
 $stmt = $pdo->prepare($sql);
-$stmt->execute([':id_trx' => $id_transaksi]);
+$stmt->execute([':token' => $token]);
 $transaksi = $stmt->fetch();
 
 // Validasi Keberadaan Transaksi
@@ -30,10 +27,9 @@ if (!$transaksi) {
     die("Kuitansi Error: Data transaksi tidak ditemukan.");
 }
 
-// Validasi Hak Akses: Hanya admin, pimpinan, atau penyewa yang bersangkutan
-if ($user_role === 'Penyewa' && (int)$transaksi['id_penyewa'] !== (int)$user_id) {
-    die("Kuitansi Error: Anda tidak memiliki akses untuk melihat kuitansi ini.");
-}
+$id_transaksi = (int)$transaksi['id_transaksi'];
+
+// Validasi Hak Akses: Siapa saja yang memiliki Token Kuitansi yang sah diizinkan melihat kuitansi ini (untuk kebutuhan verifikasi QR Code).
 
 // Validasi Status: Kuitansi resmi hanya dicetak jika sudah Lunas / Selesai
 if (!in_array($transaksi['status_transaksi'], ['Lunas', 'Selesai'])) {
@@ -250,27 +246,21 @@ function terbilang($nilai) {
         <!-- Footer Signatures -->
         <div class="grid grid-cols-2 gap-4 mt-12 text-xs relative">
             
-            <div class="space-y-1">
-                <p class="text-slate-500">Pihak Penyewa / Penerima Kuitansi,</p>
-                <div class="h-20"></div>
-                <p class="font-bold text-slate-800 underline underline-offset-2"><?= htmlspecialchars($transaksi['nama_penyewa']) ?></p>
-                <p class="text-[10px] text-slate-400">Tanda Tangan &amp; Nama Terang</p>
-            </div>
+            <div></div>
             
             <div class="space-y-1 text-right relative">
-                <!-- Large PAID Stamp Overlay in signature space -->
-                <div class="absolute right-14 -top-6 border-2 border-dashed border-emerald-500/60 text-emerald-500/60 font-bold tracking-widest text-[10px] uppercase px-3 py-1 rounded rotate-12 opacity-80 select-none pointer-events-none">
-                    LUNAS / VERIFIED
-                </div>
-
                 <p class="text-slate-500">Banda Aceh, <?= format_tanggal($tgl_lunas) ?></p>
-                <p class="text-slate-500 font-semibold">Bendahara UPT Sarana &amp; Prasarana,</p>
-                <div class="h-20 flex justify-end items-center">
-                    <div class="text-[9px] text-indigo-900 border border-indigo-900/30 px-2 py-0.5 rounded opacity-65 italic scale-90 origin-right">
-                        Signed Digitally (SIPAK Auth)
-                    </div>
+                <p class="text-slate-500 font-semibold">Ketua Pengelola,</p>
+                <div class="h-24 flex justify-end items-center py-1">
+                    <?php
+                    // Generate dynamic QR code pointing back to this receipt URL
+                    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
+                    $full_receipt_url = $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+                    $qr_code_url = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" . urlencode($full_receipt_url);
+                    ?>
+                    <img src="<?= $qr_code_url ?>" alt="Barcode TTD" class="h-20 w-20 object-contain mr-4"/>
                 </div>
-                <p class="font-bold text-slate-900 underline underline-offset-2">Admin Pengelola</p>
+                <p class="font-bold text-slate-900 underline underline-offset-2">Ketua Pengelola</p>
                 <p class="text-[10px] text-slate-500">UPT Sarana &amp; Prasarana Politeknik Aceh</p>
             </div>
         </div>

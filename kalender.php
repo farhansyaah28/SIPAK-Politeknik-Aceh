@@ -39,7 +39,7 @@ if (!empty($user_name)) {
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>SIPAK - Kalender Jadwal Aset</title>
+    <title>SIPAK - Kalender Kegiatan</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
@@ -273,6 +273,11 @@ if (!empty($user_name)) {
             transition: transform 0.15s ease, box-shadow 0.15s ease !important;
         }
 
+        .fc-event, .fc-event-title, .fc-event-title-container {
+            white-space: normal !important;
+            word-wrap: break-word !important;
+        }
+
         .fc-v-event:hover, .fc-h-event:hover {
             transform: translateY(-1px) scale(1.01) !important;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06) !important;
@@ -347,21 +352,17 @@ if (!empty($user_name)) {
         <nav class="flex-1 space-y-0.5">
             <div class="px-md py-xs text-primary-fixed-dim uppercase tracking-wider text-[9px] font-bold opacity-60">Penyewa Menu</div>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="dashboard.php">
-                <span class="material-symbols-outlined mr-2">dashboard</span>
                 <span class="font-label-lg text-label-lg font-semibold">Dashboard</span>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="booking.php">
-                <span class="material-symbols-outlined mr-2">add_box</span>
                 <span class="font-label-lg text-label-lg font-semibold">Booking Baru</span>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="riwayat_booking.php">
-                <span class="material-symbols-outlined mr-2">receipt_long</span>
                 <span class="font-label-lg text-label-lg font-semibold">Transaksi Saya</span>
             </a>
-            <!-- Active State: Jadwal Aset -->
+            <!-- Active State: Kalender Kegiatan -->
             <a class="flex items-center px-md py-2 active-nav rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="kalender.php">
-                <span class="material-symbols-outlined mr-2" style="font-variation-settings: 'FILL' 1;">calendar_month</span>
-                <span class="font-label-lg text-label-lg font-bold">Jadwal Aset</span>
+                <span class="font-label-lg text-label-lg font-bold">Kalender Kegiatan</span>
             </a>
         </nav>
         <div class="mt-auto px-md border-t border-outline/10 pt-md">
@@ -373,12 +374,11 @@ if (!empty($user_name)) {
                     <p class="text-xs font-bold text-white truncate leading-tight"><?= htmlspecialchars($_SESSION['user_name']) ?></p>
                     <span class="text-[9px] text-primary-fixed-dim/60 font-medium tracking-wide mt-0.5">Penyewa</span>
                     <button type="button" onclick="openProfileModal()" class="mt-1 px-2 py-0.5 bg-white/10 hover:bg-white/20 text-warning-amber hover:text-white rounded text-[8px] font-extrabold uppercase tracking-wider transition-all flex items-center gap-1 w-fit cursor-pointer border-none outline-none">
-                        <span class="material-symbols-outlined text-[9px]">edit</span> Edit Profil
+                        Edit Profil
                     </button>
                 </div>
             </div>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-error-container/20 hover:text-error rounded-lg mx-2 transition-all decoration-none font-semibold text-xs mb-2" href="logout.php">
-                <span class="material-symbols-outlined mr-2 text-sm">logout</span>
                 <span>Keluar</span>
             </a>
         </div>
@@ -563,7 +563,7 @@ if (!empty($user_name)) {
             locale: 'id',
             events: 'api/events.php' + (selectedGedung ? '?id_gedung=' + selectedGedung : ''),
             eventClick: function(info) {
-                document.getElementById('modalTitle').innerText = info.event.title;
+                document.getElementById('modalTitle').innerText = info.event.extendedProps.nama_kegiatan;
                 document.getElementById('modalKode').innerText = info.event.extendedProps.kode_transaksi;
                 document.getElementById('modalGedung').innerText = info.event.extendedProps.nama_gedung;
                 document.getElementById('modalMulai').innerText = info.event.extendedProps.tanggal_mulai;
@@ -606,7 +606,7 @@ if (!empty($user_name)) {
 <?php else: ?>
 
 <?php
-$page_title = "Kalender Jadwal Aset - SIPAK Politeknik Aceh";
+$page_title = "Kalender Kegiatan - SIPAK Politeknik Aceh";
 require_once 'includes/header_tailwind.php';
 echo '<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">';
 require_once 'includes/navbar_tailwind.php';
@@ -719,6 +719,11 @@ require_once 'includes/navbar_tailwind.php';
             font-weight: 600 !important;
             margin-top: 2px !important;
             transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+        }
+
+        .fc-event, .fc-event-title, .fc-event-title-container {
+            white-space: normal !important;
+            word-wrap: break-word !important;
         }
 
         .fc-v-event:hover, .fc-h-event:hover {
@@ -933,7 +938,7 @@ require_once 'includes/navbar_tailwind.php';
             locale: 'id',
             events: 'api/events.php' + (selectedGedung ? '?id_gedung=' + selectedGedung : ''),
             eventClick: function(info) {
-                document.getElementById('modalTitle').innerText = info.event.title;
+                document.getElementById('modalTitle').innerText = info.event.extendedProps.nama_kegiatan;
                 document.getElementById('modalKode').innerText = info.event.extendedProps.kode_transaksi;
                 document.getElementById('modalGedung').innerText = info.event.extendedProps.nama_gedung;
                 document.getElementById('modalMulai').innerText = info.event.extendedProps.tanggal_mulai;

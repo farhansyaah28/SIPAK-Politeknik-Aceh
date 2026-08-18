@@ -34,7 +34,9 @@ $sql = "SELECT t.*, g.nama_gedung, py.nama AS nama_penyewa, py.no_telepon,
          FROM transaksi_aset ta
          JOIN aset a ON ta.id_aset = a.id_aset
          WHERE ta.id_transaksi = t.id_transaksi) AS nama_aset,
-        (SELECT COALESCE(SUM(jumlah_bayar), 0) FROM pembayaran p WHERE p.id_transaksi = t.id_transaksi AND p.status_validasi = 'Valid') AS total_terbayar
+        (SELECT COALESCE(SUM(jumlah_bayar), 0) FROM pembayaran p WHERE p.id_transaksi = t.id_transaksi AND p.status_validasi = 'Valid') AS total_terbayar,
+        (SELECT COALESCE(jumlah_bayar, 0) FROM pembayaran WHERE id_transaksi = t.id_transaksi AND status_validasi = 'Valid' ORDER BY id_pembayaran ASC LIMIT 1) AS termin1,
+        (SELECT COALESCE(jumlah_bayar, 0) FROM pembayaran WHERE id_transaksi = t.id_transaksi AND status_validasi = 'Valid' ORDER BY id_pembayaran ASC LIMIT 1 OFFSET 1) AS termin2
         FROM transaksi t
         JOIN gedung g ON t.id_gedung = g.id_gedung
         JOIN penyewa py ON t.id_penyewa = py.id_penyewa
@@ -228,15 +230,12 @@ if (count($names) > 0) {
             <div class="px-md py-xs text-primary-fixed-dim uppercase tracking-wider text-[9px] font-bold opacity-60">Admin Menu</div>
             
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="index.php">
-                <span class="material-symbols-outlined mr-2">dashboard</span>
                 <span class="font-label-lg text-label-lg font-semibold">Dashboard</span>
             </a>
             <a class="flex items-center px-md py-2 active-nav rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="booking_kelola.php">
-                <span class="material-symbols-outlined mr-2" style="font-variation-settings: 'FILL' 1;">receipt_long</span>
                 <span class="font-label-lg text-label-lg font-bold">Kelola Booking</span>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none relative" href="pembayaran_validasi.php">
-                <span class="material-symbols-outlined mr-2">price_check</span>
                 <span class="font-label-lg text-label-lg">Validasi Bayar</span>
                 <?php if ($pending_val > 0): ?>
                     <span class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 bg-error-red text-white text-[9px] rounded-full flex items-center justify-center font-bold">
@@ -245,27 +244,22 @@ if (count($names) > 0) {
                 <?php endif; ?>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="jadwal.php">
-                <span class="material-symbols-outlined mr-2">calendar_month</span>
-                <span class="font-label-lg text-label-lg">Jadwal Terpadu</span>
+                <span class="font-label-lg text-label-lg">Kalender Kegiatan</span>
             </a>
             
             <div class="h-[1px] bg-outline-muted/5 my-1.5 mx-md"></div>
             <div class="px-md py-xs text-primary-fixed-dim uppercase tracking-wider text-[9px] font-bold opacity-60">Data Master</div>
 
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="gedung_kelola.php">
-                <span class="material-symbols-outlined mr-2">domain</span>
-                <span class="font-label-lg text-label-lg">Data Gedung</span>
+                <span class="font-label-lg text-label-lg">Data Ruang</span>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="aset_kelola.php">
-                <span class="material-symbols-outlined mr-2">inventory_2</span>
                 <span class="font-label-lg text-label-lg">Data Aset</span>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="penyewa_kelola.php">
-                <span class="material-symbols-outlined mr-2">groups</span>
                 <span class="font-label-lg text-label-lg">Data Penyewa</span>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="laporan.php">
-                <span class="material-symbols-outlined mr-2">analytics</span>
                 <span class="font-label-lg text-label-lg">Laporan Rekap</span>
             </a>
         </nav>
@@ -370,19 +364,22 @@ if (count($names) > 0) {
                     <table class="w-full text-left border-collapse align-middle">
                         <thead>
                             <tr class="bg-surface-container-low border-b border-outline-variant text-on-surface-variant text-[10px] font-bold uppercase tracking-wider">
-                                <th class="px-md py-2">Kode &amp; Tanggal</th>
-                                <th class="px-md py-2">Penyewa &amp; Kontak</th>
-                                <th class="px-md py-2">Gedung &amp; Acara</th>
-                                <th class="px-md py-2">Tanggal Sewa</th>
-                                <th class="px-md py-2 text-right">Biaya &amp; Terbayar</th>
-                                <th class="px-md py-2 text-center">Status</th>
-                                <th class="px-md py-2 text-center">Aksi</th>
+                                <th class="px-md py-2 min-w-[160px]">Kode &amp; Tanggal</th>
+                                <th class="px-md py-2 min-w-[180px]">Penyewa &amp; Kontak</th>
+                                <th class="px-md py-2 min-w-[220px]">Gedung &amp; Acara</th>
+                                <th class="px-md py-2 min-w-[150px]">Tanggal Sewa</th>
+                                <th class="px-md py-2 text-right min-w-[110px]">Termin 1</th>
+                                <th class="px-md py-2 text-right min-w-[110px]">Termin 2</th>
+                                <th class="px-md py-2 text-right min-w-[110px]">Sisa</th>
+                                <th class="px-md py-2 text-right min-w-[110px]">Total</th>
+                                <th class="px-md py-2 text-center min-w-[110px]">Status</th>
+                                <th class="px-md py-2 text-center min-w-[150px]">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-outline-variant/60 text-xs text-on-surface">
                             <?php if (empty($bookings)): ?>
                                 <tr>
-                                    <td colspan="7" class="px-md py-6 text-center text-on-surface-variant">Belum ada data transaksi sewa.</td>
+                                    <td colspan="10" class="px-md py-6 text-center text-on-surface-variant">Belum ada data transaksi sewa.</td>
                                 </tr>
                             <?php else: ?>
                                 <?php foreach ($bookings as $b): ?>
@@ -428,10 +425,10 @@ if (count($names) > 0) {
                                             <span class="block text-on-surface text-[11px] font-semibold"><?= format_tanggal($b['tanggal_mulai']) ?></span>
                                             <span class="block text-on-surface-variant text-[10px]">s/d <?= format_tanggal($b['tanggal_selesai']) ?></span>
                                         </td>
-                                        <td class="px-md py-2.5 text-right">
-                                            <strong class="block font-bold text-primary"><?= format_rupiah($b['total_pembayaran']) ?></strong>
-                                            <span class="text-[10px] text-success-green font-semibold">Masuk: <?= format_rupiah($b['total_terbayar']) ?></span>
-                                        </td>
+                                        <td class="px-md py-2.5 text-right font-semibold text-primary"><?= format_rupiah($b['termin1'] ?? 0) ?></td>
+                                        <td class="px-md py-2.5 text-right font-semibold text-primary"><?= format_rupiah($b['termin2'] ?? 0) ?></td>
+                                        <td class="px-md py-2.5 text-right font-bold text-error-red"><?= format_rupiah(max(0, $b['total_pembayaran'] - (($b['termin1'] ?? 0) + ($b['termin2'] ?? 0)))) ?></td>
+                                        <td class="px-md py-2.5 text-right font-extrabold text-primary"><?= format_rupiah($b['total_pembayaran']) ?></td>
                                         <td class="px-md py-2.5 text-center">
                                             <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border <?= $badge ?>">
                                                 <?= $status ?>
@@ -443,7 +440,7 @@ if (count($names) > 0) {
                                                     <span class="material-symbols-outlined text-[12px]">settings</span> Status
                                                 </button>
                                                 <?php if ($status === 'Lunas' || $status === 'Selesai'): ?>
-                                                    <a href="../kuitansi.php?id_transaksi=<?= $b['id_transaksi'] ?>" target="_blank" class="bg-success-green hover:bg-success-green/90 text-white font-bold text-[10px] px-2 py-1 rounded-lg hover:shadow-md transition-all decoration-none flex items-center justify-center gap-xs">
+                                                    <a href="../kuitansi.php?token=<?= $b['token_kuitansi'] ?>" target="_blank" class="bg-success-green hover:bg-success-green/90 text-white font-bold text-[10px] px-2 py-1 rounded-lg hover:shadow-md transition-all decoration-none flex items-center justify-center gap-xs">
                                                         <span class="material-symbols-outlined text-[12px]">print</span> Kuitansi
                                                     </a>
                                                 <?php endif; ?>

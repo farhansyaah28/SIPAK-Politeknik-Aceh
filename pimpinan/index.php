@@ -192,11 +192,9 @@ if (count($names) > 0) {
             <div class="px-md py-xs text-primary-fixed-dim uppercase tracking-wider text-[9px] font-bold opacity-60">Pimpinan Menu</div>
             
             <a class="flex items-center px-md py-2 active-nav rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="index.php">
-                <span class="material-symbols-outlined mr-2" style="font-variation-settings: 'FILL' 1;">dashboard</span>
                 <span class="font-label-lg text-label-lg font-bold">Dashboard</span>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="laporan.php">
-                <span class="material-symbols-outlined mr-2">analytics</span>
                 <span class="font-label-lg text-label-lg font-semibold">Laporan Rekap</span>
             </a>
         </nav>
@@ -213,7 +211,6 @@ if (count($names) > 0) {
                 </div>
             </div>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-error-container/20 hover:text-error rounded-lg mx-2 transition-all decoration-none font-semibold text-xs" href="../logout.php">
-                <span class="material-symbols-outlined mr-2 text-sm">logout</span>
                 <span>Keluar</span>
             </a>
         </div>

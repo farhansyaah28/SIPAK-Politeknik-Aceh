@@ -74,6 +74,21 @@ try {
         $pdo->exec("ALTER TABLE transaksi ADD COLUMN foto_identitas VARCHAR(255) DEFAULT NULL");
     }
 
+    // Self-healing database migration for token_kuitansi column
+    try {
+        $pdo->query("SELECT token_kuitansi FROM transaksi LIMIT 1");
+    } catch (\PDOException $ex) {
+        $pdo->exec("ALTER TABLE transaksi ADD COLUMN token_kuitansi VARCHAR(64) UNIQUE DEFAULT NULL");
+        // Populate existing rows with random tokens
+        $stmt_all = $pdo->query("SELECT id_transaksi FROM transaksi");
+        $rows = $stmt_all->fetchAll();
+        $stmt_upd = $pdo->prepare("UPDATE transaksi SET token_kuitansi = :token WHERE id_transaksi = :id");
+        foreach ($rows as $row) {
+            $random_token = bin2hex(random_bytes(16));
+            $stmt_upd->execute([':token' => $random_token, ':id' => $row['id_transaksi']]);
+        }
+    }
+
     // Self-healing database migration to update Admin full name
     try {
         $pdo->exec("UPDATE `admin` SET nama_lengkap = 'Administrator' WHERE username = 'admin' AND nama_lengkap = 'Administrator Pengelola'");

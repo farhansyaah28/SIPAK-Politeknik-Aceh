@@ -299,20 +299,16 @@ if (count($names) > 0) {
             <div class="px-md py-xs text-primary-fixed-dim uppercase tracking-wider text-[9px] font-bold opacity-60">Menu Utama</div>
             
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="dashboard.php">
-                <span class="material-symbols-outlined mr-2">dashboard</span>
                 <span class="font-label-lg text-label-lg font-semibold">Dashboard</span>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="booking.php">
-                <span class="material-symbols-outlined mr-2">add_box</span>
                 <span class="font-label-lg text-label-lg font-semibold">Booking Baru</span>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="riwayat_booking.php">
-                <span class="material-symbols-outlined mr-2">receipt_long</span>
                 <span class="font-label-lg text-label-lg font-semibold">Transaksi Saya</span>
             </a>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-surface-container-low/10 hover:text-white rounded-r-lg mr-2 my-0.5 transition-all decoration-none" href="kalender.php">
-                <span class="material-symbols-outlined mr-2">calendar_month</span>
-                <span class="font-label-lg text-label-lg font-semibold">Jadwal Aset</span>
+                <span class="font-label-lg text-label-lg font-semibold">Kalender Kegiatan</span>
             </a>
         </nav>
 
@@ -326,12 +322,11 @@ if (count($names) > 0) {
                     <p class="text-xs font-bold text-white truncate leading-tight"><?= htmlspecialchars($_SESSION['user_name']) ?></p>
                     <span class="text-[9px] text-primary-fixed-dim/60 font-medium tracking-wide mt-0.5">Penyewa</span>
                     <button type="button" onclick="openProfileModal()" class="mt-1 px-2 py-0.5 bg-white/10 hover:bg-white/20 text-warning-amber hover:text-white rounded text-[8px] font-extrabold uppercase tracking-wider transition-all flex items-center gap-1 w-fit cursor-pointer border-none outline-none">
-                        <span class="material-symbols-outlined text-[9px]">edit</span> Edit Profil
+                        Edit Profil
                     </button>
                 </div>
             </div>
             <a class="flex items-center px-md py-2 text-primary-fixed-dim hover:bg-error-container/20 hover:text-error rounded-lg mx-2 transition-all decoration-none font-semibold text-xs mb-2" href="logout.php">
-                <span class="material-symbols-outlined mr-2 text-sm">logout</span>
                 <span>Keluar</span>
             </a>
         </div>
@@ -460,7 +455,7 @@ if (count($names) > 0) {
                                     Seluruh tagihan sewa gedung dan aset Anda telah dilunasi dan terverifikasi secara lunas oleh Admin kampus. Jadwal gedung resmi dikunci.
                                 </p>
                                 <div class="pt-2">
-                                    <a href="kuitansi.php?id_transaksi=<?= $id_transaksi ?>" target="_blank" class="inline-flex items-center gap-xs bg-success-green hover:bg-success-green/90 text-white font-bold text-[11px] px-3.5 py-1.5 rounded-lg hover:shadow-md active:scale-95 transition-all decoration-none">
+                                    <a href="kuitansi.php?token=<?= $transaksi['token_kuitansi'] ?>" target="_blank" class="inline-flex items-center gap-xs bg-success-green hover:bg-success-green/90 text-white font-bold text-[11px] px-3.5 py-1.5 rounded-lg hover:shadow-md active:scale-95 transition-all decoration-none">
                                         <span class="material-symbols-outlined text-sm">print</span> Cetak Kuitansi Resmi
                                     </a>
                                 </div>

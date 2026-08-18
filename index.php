@@ -56,7 +56,7 @@ require_once 'includes/navbar_tailwind.php';
                             Lihat Aset Tersedia <span class="material-symbols-outlined text-sm">arrow_forward</span>
                         </a>
                         <a href="kalender.php" class="border border-white/30 text-white px-5 py-2.5 rounded-xl font-bold text-xs md:text-sm hover:bg-white/10 transition-colors decoration-none flex items-center gap-xs">
-                            <span class="material-symbols-outlined text-sm">calendar_month</span> Cek Jadwal Aset
+                            <span class="material-symbols-outlined text-sm">calendar_month</span> Cek Kalender Kegiatan
                         </a>
                     </div>
                 </div>

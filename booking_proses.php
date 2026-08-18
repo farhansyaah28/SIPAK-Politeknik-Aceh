@@ -160,17 +160,19 @@ if (isset($_POST['captured_image']) && !empty($_POST['captured_image'])) {
 
 // 4. Simpan Transaksi Baru dengan Status 'Menunggu Pembayaran'
 $kode_transaksi = generate_kode_transaksi($pdo);
+$token_kuitansi = bin2hex(random_bytes(16));
 
 // Setup legacy fallback columns
 $first_asset_id = !empty($selected_assets) ? array_key_first($selected_assets) : null;
 $first_asset_qty = $first_asset_id ? $selected_assets[$first_asset_id] : 1;
 
 $stmt = $pdo->prepare("INSERT INTO transaksi 
-    (kode_transaksi, id_penyewa, id_gedung, id_aset, jumlah_aset, nama_kegiatan, deskripsi_kegiatan, tanggal_mulai, tanggal_selesai, total_pembayaran, status_transaksi, foto_identitas) 
-    VALUES (:kode, :id_penyewa, :id_gedung, :id_aset, :jumlah_aset, :nama_kegiatan, :deskripsi, :tgl_mulai, :tgl_selesai, :total, 'Menunggu Pembayaran', :foto_id)");
+    (kode_transaksi, token_kuitansi, id_penyewa, id_gedung, id_aset, jumlah_aset, nama_kegiatan, deskripsi_kegiatan, tanggal_mulai, tanggal_selesai, total_pembayaran, status_transaksi, foto_identitas) 
+    VALUES (:kode, :token_kuitansi, :id_penyewa, :id_gedung, :id_aset, :jumlah_aset, :nama_kegiatan, :deskripsi, :tgl_mulai, :tgl_selesai, :total, 'Menunggu Pembayaran', :foto_id)");
 
 $stmt->execute([
     ':kode'           => $kode_transaksi,
+    ':token_kuitansi' => $token_kuitansi,
     ':id_penyewa'      => $id_penyewa,
     ':id_gedung'       => $id_gedung,
     ':id_aset'         => $first_asset_id,

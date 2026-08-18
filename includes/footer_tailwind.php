@@ -20,7 +20,7 @@
                 <ul class="space-y-1 text-outline-muted/80">
                     <li><a class="hover:text-warning-amber transition-colors" href="index.php">Beranda</a></li>
                     <li><a class="hover:text-warning-amber transition-colors" href="gedung.php">Aset Tersedia</a></li>
-                    <li><a class="hover:text-warning-amber transition-colors" href="kalender.php">Jadwal Aset</a></li>
+                    <li><a class="hover:text-warning-amber transition-colors" href="kalender.php">Kalender Kegiatan</a></li>
                     <li><a class="hover:text-warning-amber transition-colors" href="bantuan.php">Bantuan</a></li>
                 </ul>
             </div>
