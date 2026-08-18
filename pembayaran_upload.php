@@ -488,6 +488,12 @@ if (count($names) > 0) {
 
                 <!-- Column Right: Billing Summary & Details -->
                 <div class="col-span-12 lg:col-span-5 space-y-md">
+                    <!-- Print Invoice Standalone Action Button -->
+                    <a href="nota.php?token=<?= $transaksi['token_kuitansi'] ?>" target="_blank" class="w-full h-10 bg-white border border-outline-variant hover:border-primary/50 text-primary hover:bg-surface-container-low font-bold text-xs rounded-xl flex items-center justify-center gap-xs shadow-sm transition-all duration-200 decoration-none cursor-pointer">
+                        <span class="material-symbols-outlined text-[18px]">description</span>
+                        <span>Cetak Nota Tagihan (Invoice)</span>
+                    </a>
+
                     <!-- Rental Details Card -->
                     <div class="bg-white rounded-2xl p-md border border-outline-variant shadow-soft space-y-sm bento-card text-xs">
                         <div class="flex items-center justify-between">
@@ -504,13 +510,7 @@ if (count($names) > 0) {
                         </div>
 
                         <div class="space-y-base">
-                            <div class="flex items-center justify-between gap-2 mb-1">
-                                <h4 class="text-primary flex items-center gap-xs font-bold"><span class="material-symbols-outlined text-sm">info</span> Informasi Sewa</h4>
-                                <a href="nota.php?token=<?= $transaksi['token_kuitansi'] ?>" target="_blank" class="inline-flex items-center gap-xs bg-white border border-outline-variant text-primary hover:bg-surface-container-low font-bold text-[10px] px-2.5 py-1.5 rounded-lg shadow-xs transition-all duration-200 decoration-none cursor-pointer">
-                                    <span class="material-symbols-outlined text-[14px]">description</span>
-                                    <span>Cetak Nota</span>
-                                </a>
-                            </div>
+                            <h4 class="text-primary flex items-center gap-xs font-bold"><span class="material-symbols-outlined text-sm">info</span> Informasi Sewa</h4>
                             <div class="p-sm bg-surface rounded-xl border border-outline-variant/60 space-y-xs text-[11px]">
                                 <div class="flex flex-col">
                                     <span class="text-on-surface-variant">Gedung / Aula:</span>
