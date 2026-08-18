@@ -358,14 +358,9 @@ if (count($names) > 0) {
                     <h1 class="font-display-md text-display-md text-primary font-bold">Portal Pembayaran Bertahap (Termin)</h1>
                     <p class="text-xs text-on-surface-variant">Lakukan konfirmasi dan unggah bukti transaksi sewa gedung atau aset Anda di bawah ini.</p>
                 </div>
-                <div class="flex gap-2 shrink-0">
-                    <a href="nota.php?token=<?= $transaksi['token_kuitansi'] ?>" target="_blank" class="bg-white border border-outline-variant text-primary font-bold px-md h-9 rounded-lg shadow-sm hover:bg-surface-container-low transition-all flex items-center gap-xs text-xs decoration-none">
-                        <span class="material-symbols-outlined text-sm text-[16px]">description</span> Cetak Nota (Invoice)
-                    </a>
-                    <a href="riwayat_booking.php" class="bg-white border border-outline-variant text-primary font-bold px-md h-9 rounded-lg shadow-sm hover:bg-surface-container-low transition-all flex items-center gap-xs text-xs decoration-none">
-                        <span class="material-symbols-outlined text-sm text-[16px]">arrow_back</span> Kembali ke Transaksi
-                    </a>
-                </div>
+                <a href="riwayat_booking.php" class="bg-white border border-outline-variant text-primary font-bold px-md h-9 rounded-lg shadow-sm hover:bg-surface-container-low transition-all flex items-center gap-xs text-xs decoration-none">
+                    <span class="material-symbols-outlined text-sm text-[16px]">arrow_back</span> Kembali ke Transaksi
+                </a>
             </div>
 
             <!-- Bento-style Grid System -->
@@ -575,6 +570,17 @@ if (count($names) > 0) {
                                     </div>
                                 <?php endif; ?>
                             </div>
+                        </div>
+
+                        <!-- Action section inside the card footer -->
+                        <div class="pt-sm border-t border-outline-variant/60 flex items-center justify-between mt-sm">
+                            <div class="flex flex-col">
+                                <strong class="text-primary font-bold text-[10px]">Nota Tagihan Resmi (Invoice)</strong>
+                                <span class="text-[9px] text-on-surface-variant">Gunakan untuk pencatatan/SPJ fisik.</span>
+                            </div>
+                            <a href="nota.php?token=<?= $transaksi['token_kuitansi'] ?>" target="_blank" class="inline-flex items-center gap-xs bg-surface-container hover:bg-surface-container-high text-primary font-bold text-[10px] px-2.5 py-1.5 rounded-lg border border-outline-variant/60 hover:shadow-xs transition-all decoration-none">
+                                <span class="material-symbols-outlined text-[14px]">description</span> Cetak Nota (Invoice)
+                            </a>
                         </div>
                     </div>
                 </div>
