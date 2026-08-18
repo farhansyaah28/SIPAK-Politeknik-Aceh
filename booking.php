@@ -497,11 +497,17 @@ if (count($names) > 0) {
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
                                 <div class="space-y-base">
                                     <label for="tanggal_mulai" class="font-semibold text-primary block text-xs">Tanggal Mulai Acara *</label>
-                                    <input type="text" name="tanggal_mulai" id="tanggal_mulai" placeholder="Pilih Tanggal Mulai" class="w-full py-1.5 px-md rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary/20 bg-surface-container-lowest text-xs text-on-surface" required readonly>
+                                    <input type="text" name="tanggal_mulai" id="tanggal_mulai" 
+                                           placeholder="<?= empty($id_gedung_selected) ? 'Silakan Pilih Gedung Terlebih Dahulu' : 'Pilih Tanggal Mulai' ?>" 
+                                           class="w-full py-1.5 px-md rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary/20 bg-surface-container-lowest text-xs text-on-surface" 
+                                           required readonly <?= empty($id_gedung_selected) ? 'disabled style="cursor: not-allowed; opacity: 0.6;"' : '' ?>>
                                 </div>
                                 <div class="space-y-base">
                                     <label for="tanggal_selesai" class="font-semibold text-primary block text-xs">Tanggal Selesai Acara *</label>
-                                    <input type="text" name="tanggal_selesai" id="tanggal_selesai" placeholder="Pilih Tanggal Selesai" class="w-full py-1.5 px-md rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary/20 bg-surface-container-lowest text-xs text-on-surface" required readonly>
+                                    <input type="text" name="tanggal_selesai" id="tanggal_selesai" 
+                                           placeholder="<?= empty($id_gedung_selected) ? 'Silakan Pilih Gedung Terlebih Dahulu' : 'Pilih Tanggal Selesai' ?>" 
+                                           class="w-full py-1.5 px-md rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary/20 bg-surface-container-lowest text-xs text-on-surface" 
+                                           required readonly <?= empty($id_gedung_selected) ? 'disabled style="cursor: not-allowed; opacity: 0.6;"' : '' ?>>
                                 </div>
                             </div>
 
@@ -803,7 +809,8 @@ if (count($names) > 0) {
             });
         }
 
-        // Initialize Flatpickr for booking dates
+        // Initialize Flatpickr for booking dates (Only if building is pre-selected)
+        <?php if (!empty($id_gedung_selected)): ?>
         const disabledDates = <?= json_encode($booked_dates) ?>;
         
         flatpickr("#tanggal_mulai", {
@@ -827,6 +834,7 @@ if (count($names) > 0) {
                 calculateEstimate();
             }
         });
+        <?php endif; ?>
     });
 
     function formatRupiah(number) {
