@@ -29,6 +29,29 @@ if (!empty($id_gedung_selected)) {
     $assets = $stmt_ast->fetchAll();
 }
 
+// Fetch booked dates for the pre-selected building to disable them on date picker
+$booked_dates = [];
+if (!empty($id_gedung_selected)) {
+    $stmt_booked = $pdo->prepare("SELECT tanggal_mulai, tanggal_selesai FROM transaksi 
+                                  WHERE id_gedung = :id 
+                                  AND status_transaksi NOT IN ('Ditolak', 'Dibatalkan')");
+    $stmt_booked->execute([':id' => $id_gedung_selected]);
+    $bookings = $stmt_booked->fetchAll();
+    
+    foreach ($bookings as $b) {
+        $start = new DateTime($b['tanggal_mulai']);
+        $end = new DateTime($b['tanggal_selesai']);
+        $end->modify('+1 day'); // include end date
+        
+        $interval = new DateInterval('P1D');
+        $period = new DatePeriod($start, $interval, $end);
+        
+        foreach ($period as $date) {
+            $booked_dates[] = $date->format('Y-m-d');
+        }
+    }
+}
+
 // Sync user name with database to keep navbar and sidebar updated in real-time
 $id_penyewa = $_SESSION['user_id'] ?? 0;
 $stmt_sync = $pdo->prepare("SELECT nama FROM penyewa WHERE id_penyewa = :id");
@@ -58,6 +81,9 @@ if (count($names) > 0) {
     <title>SIPAK - Pemesanan Gedung &amp; Aset</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <!-- Flatpickr CSS & JS CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -422,11 +448,11 @@ if (count($names) > 0) {
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
                                 <div class="space-y-base">
                                     <label for="tanggal_mulai" class="font-semibold text-primary block text-xs">Tanggal Mulai Acara *</label>
-                                    <input type="date" name="tanggal_mulai" id="tanggal_mulai" class="w-full py-1.5 px-md rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary/20 bg-surface-container-lowest text-xs text-on-surface" required min="<?= date('Y-m-d') ?>" onchange="calculateEstimate()">
+                                    <input type="text" name="tanggal_mulai" id="tanggal_mulai" placeholder="Pilih Tanggal Mulai" class="w-full py-1.5 px-md rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary/20 bg-surface-container-lowest text-xs text-on-surface" required readonly>
                                 </div>
                                 <div class="space-y-base">
                                     <label for="tanggal_selesai" class="font-semibold text-primary block text-xs">Tanggal Selesai Acara *</label>
-                                    <input type="date" name="tanggal_selesai" id="tanggal_selesai" class="w-full py-1.5 px-md rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary/20 bg-surface-container-lowest text-xs text-on-surface" required min="<?= date('Y-m-d') ?>" onchange="calculateEstimate()">
+                                    <input type="text" name="tanggal_selesai" id="tanggal_selesai" placeholder="Pilih Tanggal Selesai" class="w-full py-1.5 px-md rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary/20 bg-surface-container-lowest text-xs text-on-surface" required readonly>
                                 </div>
                             </div>
 
@@ -473,6 +499,36 @@ if (count($names) > 0) {
                                         <p class="leading-relaxed bg-surface p-2 rounded-lg border border-outline-variant/40 text-[10px]"><?= htmlspecialchars($selected_gedung_info['fasilitas']) ?></p>
                                     </div>
                                 <?php endif; ?>
+                                
+                                <!-- Booked Dates List -->
+                                <div class="pt-2 border-t border-outline-variant/40 mt-2">
+                                    <span class="font-semibold text-primary flex items-center gap-xs text-[11px] mb-1">
+                                        <span class="material-symbols-outlined text-xs text-error-red">event_busy</span> Jadwal Terisi (Tidak Tersedia):
+                                    </span>
+                                    <?php
+                                    // Fetch detailed bookings list for display
+                                    $stmt_det = $pdo->prepare("SELECT nama_kegiatan, tanggal_mulai, tanggal_selesai FROM transaksi 
+                                                               WHERE id_gedung = :id 
+                                                               AND status_transaksi NOT IN ('Ditolak', 'Dibatalkan') 
+                                                               AND tanggal_selesai >= CURRENT_DATE()
+                                                               ORDER BY tanggal_mulai ASC");
+                                    $stmt_det->execute([':id' => $id_gedung_selected]);
+                                    $det_bookings = $stmt_det->fetchAll();
+                                    
+                                    if (empty($det_bookings)):
+                                    ?>
+                                        <p class="text-[10px] text-success-green bg-success-green/5 p-2 rounded-lg border border-success-green/20">Semua tanggal masih tersedia untuk gedung ini.</p>
+                                    <?php else: ?>
+                                        <div class="space-y-1 max-h-32 overflow-y-auto pr-1">
+                                            <?php foreach ($det_bookings as $db): ?>
+                                                <div class="p-1.5 bg-error-container/20 rounded-lg border border-error-red/10 text-[10px]">
+                                                    <strong class="text-primary block leading-none truncate mb-0.5 font-bold">"<?= htmlspecialchars($db['nama_kegiatan']) ?>"</strong>
+                                                    <span class="text-error-red font-semibold"><?= format_tanggal($db['tanggal_mulai']) ?> s/d <?= format_tanggal($db['tanggal_selesai']) ?></span>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         </div>
                     <?php else: ?>
@@ -683,7 +739,7 @@ if (count($names) > 0) {
         }
     }
 
-    // Attach form submit validator for camera mode
+    // Attach form submit validator for camera mode & Flatpickr initialization
     document.addEventListener('DOMContentLoaded', () => {
         const form = document.getElementById('bookingForm');
         if (form) {
@@ -697,6 +753,31 @@ if (count($names) > 0) {
                 }
             });
         }
+
+        // Initialize Flatpickr for booking dates
+        const disabledDates = <?= json_encode($booked_dates) ?>;
+        
+        flatpickr("#tanggal_mulai", {
+            dateFormat: "Y-m-d",
+            minDate: "today",
+            disable: disabledDates,
+            onChange: function(selectedDates, dateStr, instance) {
+                const selesaiPicker = document.querySelector("#tanggal_selesai")._flatpickr;
+                if (selesaiPicker) {
+                    selesaiPicker.set("minDate", dateStr || "today");
+                }
+                calculateEstimate();
+            }
+        });
+
+        flatpickr("#tanggal_selesai", {
+            dateFormat: "Y-m-d",
+            minDate: "today",
+            disable: disabledDates,
+            onChange: function(selectedDates, dateStr, instance) {
+                calculateEstimate();
+            }
+        });
     });
 
     function formatRupiah(number) {
