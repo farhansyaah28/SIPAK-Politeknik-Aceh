@@ -442,16 +442,15 @@ if (count($names) > 0) {
                                                         Lihat Detail
                                                     </a>
                                                 <?php else: ?>
-                                                    <div class="flex flex-col items-center gap-1.5 py-1">
-                                                        <a href="pembayaran_upload.php?id_transaksi=<?= $b['id_transaksi'] ?>" class="bg-primary text-on-primary font-bold text-[10px] px-3 py-1.5 rounded-lg hover:shadow-md active:scale-95 transition-all decoration-none block w-28 text-center leading-normal">
-                                                            Kelola Pembayaran
+                                                    <div class="flex items-center justify-center gap-1.5 py-1">
+                                                        <a href="pembayaran_upload.php?id_transaksi=<?= $b['id_transaksi'] ?>" class="bg-primary hover:bg-primary-container text-white font-bold text-[10px] rounded-lg hover:shadow-md active:scale-95 transition-all decoration-none inline-flex items-center justify-center h-[28px] px-3">
+                                                            Bayar
                                                         </a>
                                                         <?php if ($status === 'Menunggu Pembayaran'): ?>
-                                                            <form action="booking_batal.php" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pemesanan ini?');" class="w-full">
+                                                            <form action="booking_batal.php" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pemesanan ini?');" class="inline">
                                                                 <input type="hidden" name="id_transaksi" value="<?= $b['id_transaksi'] ?>">
-                                                                <button type="submit" class="w-full py-0.5 text-red-600 hover:text-red-800 hover:underline text-[9px] font-bold transition-all bg-transparent border-none cursor-pointer flex items-center justify-center gap-0.5">
-                                                                    <span class="material-symbols-outlined text-[10px] text-red-600">cancel</span>
-                                                                    <span>Batalkan Booking</span>
+                                                                <button type="submit" class="bg-red-50 border border-red-200 text-red-600 hover:bg-red-100 font-bold text-[10px] rounded-lg hover:shadow-md active:scale-95 transition-all cursor-pointer inline-flex items-center justify-center h-[28px] px-3">
+                                                                    Batal
                                                                 </button>
                                                             </form>
                                                         <?php endif; ?>
