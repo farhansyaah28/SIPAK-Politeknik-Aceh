@@ -377,7 +377,7 @@ if (count($names) > 0) {
                     </div>
 
                     <div class="p-md">
-                        <form method="POST" action="booking_proses.php" enctype="multipart/form-data" class="space-y-sm" id="bookingForm">
+                        <form method="POST" action="booking_proses.php" enctype="multipart/form-data" class="space-y-sm" id="bookingForm" novalidate>
                             <!-- Gedung Selection -->
                             <div class="space-y-base">
                                 <label for="id_gedung" class="font-semibold text-primary block text-xs">Pilih Gedung Utama *</label>
@@ -460,7 +460,7 @@ if (count($names) > 0) {
                                         <span class="text-[10px] text-on-surface-variant block mt-1">Format file: JPG, PNG, atau PDF. Maksimal 2MB.</span>
                                         
                                         <!-- Hidden input for file selection -->
-                                        <input type="file" name="foto_identitas" id="foto_identitas" class="hidden" required accept="image/*,application/pdf" onchange="updateFileLabel(this)">
+                                        <input type="file" name="foto_identitas" id="foto_identitas" class="hidden" accept="image/*,application/pdf" onchange="updateFileLabel(this)">
                                     </div>
                                 </div>
 
@@ -707,8 +707,6 @@ if (count($names) > 0) {
             
             fileBtn.className = "px-md py-1.5 bg-white text-primary text-xs font-bold rounded-lg shadow-sm flex items-center justify-center gap-xs transition-all duration-200";
             cameraBtn.className = "px-md py-1.5 text-on-surface-variant text-xs font-semibold rounded-lg flex items-center justify-center gap-xs hover:bg-surface-container-high hover:text-primary transition-all duration-200";
-            
-            fileInput.required = true;
         } else {
             fileContainer.classList.add('hidden');
             cameraContainer.classList.remove('hidden');
@@ -716,7 +714,6 @@ if (count($names) > 0) {
             fileBtn.className = "px-md py-1.5 text-on-surface-variant text-xs font-semibold rounded-lg flex items-center justify-center gap-xs hover:bg-surface-container-high hover:text-primary transition-all duration-200";
             cameraBtn.className = "px-md py-1.5 bg-white text-primary text-xs font-bold rounded-lg shadow-sm flex items-center justify-center gap-xs transition-all duration-200";
             
-            fileInput.required = false;
             startCamera();
         }
     }
