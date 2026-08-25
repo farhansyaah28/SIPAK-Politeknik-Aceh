@@ -447,9 +447,9 @@ if (count($names) > 0) {
                                                             Bayar
                                                         </a>
                                                         <?php if ($status === 'Menunggu Pembayaran'): ?>
-                                                            <form action="booking_batal.php" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pemesanan ini?');" class="inline">
+                                                            <form action="booking_batal.php" method="POST" id="batalForm_<?= $b['id_transaksi'] ?>" class="inline">
                                                                 <input type="hidden" name="id_transaksi" value="<?= $b['id_transaksi'] ?>">
-                                                                <button type="submit" class="bg-red-50 border border-red-200 text-red-600 hover:bg-red-100 font-bold text-[10px] rounded-lg hover:shadow-md active:scale-95 transition-all cursor-pointer inline-flex items-center justify-center h-[28px] px-3">
+                                                                <button type="button" onclick="confirmCancel(<?= $b['id_transaksi'] ?>)" class="bg-red-50 border border-red-200 text-red-600 hover:bg-red-100 font-bold text-[10px] rounded-lg hover:shadow-md active:scale-95 transition-all cursor-pointer inline-flex items-center justify-center h-[28px] px-3">
                                                                     Batal
                                                                 </button>
                                                             </form>
@@ -538,7 +538,6 @@ if (count($names) > 0) {
         }
     }
 
-    // Interactive button scaling
     document.querySelectorAll('button, a').forEach(btn => {
         btn.addEventListener('mousedown', () => {
             btn.style.transform = 'scale(0.96)';
@@ -550,6 +549,63 @@ if (count($names) > 0) {
             btn.style.transform = 'scale(1)';
         });
     });
+</script>
+
+<!-- Custom Confirmation Modal -->
+<div id="cancelModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-md">
+    <div class="bg-white rounded-2xl border border-outline-variant max-w-sm w-full p-lg shadow-xl scale-95 transition-all duration-200" id="cancelModalContent">
+        <div class="flex items-center gap-sm text-error-red mb-sm">
+            <div class="bg-error-container/20 p-2.5 rounded-xl text-error-red">
+                <span class="material-symbols-outlined text-lg">warning</span>
+            </div>
+            <h3 class="font-bold text-sm text-primary">Batalkan Pemesanan</h3>
+        </div>
+        <p class="text-xs text-on-surface-variant leading-relaxed mb-md">
+            Apakah Anda yakin ingin membatalkan pemesanan gedung ini? Tindakan ini bersifat permanen dan tidak dapat dibatalkan.
+        </p>
+        <div class="flex gap-2 justify-end">
+            <button type="button" onclick="closeCancelModal()" class="bg-white border border-outline-variant text-primary font-bold px-md h-9 rounded-lg hover:bg-surface-container-low text-xs transition-all cursor-pointer">
+                Kembali
+            </button>
+            <button type="button" id="confirmCancelBtn" class="bg-error-red hover:bg-error-red/90 text-white font-bold px-md h-9 rounded-lg shadow-sm hover:shadow transition-all text-xs cursor-pointer">
+                Ya, Batalkan
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+let activeFormId = null;
+
+function confirmCancel(id) {
+    activeFormId = 'batalForm_' + id;
+    const modal = document.getElementById('cancelModal');
+    const content = document.getElementById('cancelModalContent');
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => {
+        content.classList.remove('scale-95');
+        content.classList.add('scale-100');
+    }, 10);
+}
+
+function closeCancelModal() {
+    const modal = document.getElementById('cancelModal');
+    const content = document.getElementById('cancelModalContent');
+    content.classList.remove('scale-100');
+    content.classList.add('scale-95');
+    document.body.style.overflow = '';
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        activeFormId = null;
+    }, 150);
+}
+
+document.getElementById('confirmCancelBtn').addEventListener('click', function() {
+    if (activeFormId) {
+        document.getElementById(activeFormId).submit();
+    }
+});
 </script>
 <?php include 'includes/profile_modal.php'; ?>
 <?php include 'includes/mobile_menu_admin.php'; ?>

@@ -467,9 +467,9 @@ if (count($names) > 0) {
                                 </form>
                                 <?php if ($transaksi['status_transaksi'] === 'Menunggu Pembayaran'): ?>
                                     <hr class="border-outline-variant/60 my-sm">
-                                    <form action="booking_batal.php" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pemesanan gedung ini? Tindakan ini tidak dapat dibatalkan.');" class="m-0">
+                                    <form action="booking_batal.php" method="POST" id="batalForm" class="m-0">
                                         <input type="hidden" name="id_transaksi" value="<?= $id_transaksi ?>">
-                                        <button type="submit" class="w-full h-9 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 font-bold text-xs rounded-lg flex items-center justify-center gap-xs shadow-xs active:scale-95 transition-all cursor-pointer">
+                                        <button type="button" onclick="openCancelModal()" class="w-full h-9 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 font-bold text-xs rounded-lg flex items-center justify-center gap-xs shadow-xs active:scale-95 transition-all cursor-pointer">
                                             <span class="material-symbols-outlined text-sm text-red-600">cancel</span>
                                             <span>Batalkan Pemesanan Gedung Ini</span>
                                         </button>
@@ -689,6 +689,57 @@ if (count($names) > 0) {
             elem.style.transform = 'scale(1)';
         });
     });
+</script>
+
+<!-- Custom Confirmation Modal -->
+<div id="cancelModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-md">
+    <div class="bg-white rounded-2xl border border-outline-variant max-w-sm w-full p-lg shadow-xl scale-95 transition-all duration-200" id="cancelModalContent">
+        <div class="flex items-center gap-sm text-error-red mb-sm">
+            <div class="bg-error-container/20 p-2.5 rounded-xl text-error-red">
+                <span class="material-symbols-outlined text-lg">warning</span>
+            </div>
+            <h3 class="font-bold text-sm text-primary">Batalkan Pemesanan</h3>
+        </div>
+        <p class="text-xs text-on-surface-variant leading-relaxed mb-md">
+            Apakah Anda yakin ingin membatalkan pemesanan gedung ini? Tindakan ini bersifat permanen dan tidak dapat dibatalkan.
+        </p>
+        <div class="flex gap-2 justify-end">
+            <button type="button" onclick="closeCancelModal()" class="bg-white border border-outline-variant text-primary font-bold px-md h-9 rounded-lg hover:bg-surface-container-low text-xs transition-all cursor-pointer">
+                Kembali
+            </button>
+            <button type="button" id="confirmCancelBtn" class="bg-error-red hover:bg-error-red/90 text-white font-bold px-md h-9 rounded-lg shadow-sm hover:shadow transition-all text-xs cursor-pointer">
+                Ya, Batalkan
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function openCancelModal() {
+    const modal = document.getElementById('cancelModal');
+    const content = document.getElementById('cancelModalContent');
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => {
+        content.classList.remove('scale-95');
+        content.classList.add('scale-100');
+    }, 10);
+}
+
+function closeCancelModal() {
+    const modal = document.getElementById('cancelModal');
+    const content = document.getElementById('cancelModalContent');
+    content.classList.remove('scale-100');
+    content.classList.add('scale-95');
+    document.body.style.overflow = '';
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 150);
+}
+
+document.getElementById('confirmCancelBtn').addEventListener('click', function() {
+    document.getElementById('batalForm').submit();
+});
 </script>
 <?php include 'includes/profile_modal.php'; ?>
 </body>
