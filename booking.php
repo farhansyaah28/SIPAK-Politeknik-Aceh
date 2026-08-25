@@ -357,6 +357,12 @@ if (count($names) > 0) {
                 <?php unset($_SESSION['flash']); ?>
             <?php endif; ?>
 
+            <!-- Client-Side JS Alert Banner -->
+            <div id="js_validation_alert" class="hidden bg-error-container text-on-error-container border border-error/20 p-sm rounded-xl flex items-center gap-xs shadow-sm text-xs mb-md">
+                <span class="material-symbols-outlined text-sm text-error">error</span>
+                <span class="font-medium" id="js_validation_message"></span>
+            </div>
+
             <!-- Grid Layout (Main Form + Right Sidebar Summary Panel) -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-md items-start">
                 
@@ -799,11 +805,63 @@ if (count($names) > 0) {
         const form = document.getElementById('bookingForm');
         if (form) {
             form.addEventListener('submit', function (event) {
-                if (currentMode === 'camera') {
-                    const capturedImg = document.getElementById('captured_image').value;
-                    if (!capturedImg || capturedImg.trim() === '') {
-                        event.preventDefault();
-                        alert('Silakan ambil foto identitas Anda terlebih dahulu menggunakan kamera.');
+                // Clear any previous JS validation errors
+                const alertBanner = document.getElementById('js_validation_alert');
+                const alertMsg = document.getElementById('js_validation_message');
+                alertBanner.classList.add('hidden');
+                
+                let errorMessage = '';
+
+                // 1. Validate Building Selection
+                const idGedung = document.getElementById('id_gedung').value;
+                if (!idGedung || idGedung.trim() === '') {
+                    errorMessage = 'Silakan pilih gedung terlebih dahulu.';
+                }
+                
+                // 2. Validate Nama Kegiatan
+                if (!errorMessage) {
+                    const namaKegiatan = document.getElementById('nama_kegiatan').value;
+                    if (!namaKegiatan || namaKegiatan.trim() === '') {
+                        errorMessage = 'Silakan isi nama acara / kegiatan.';
+                    }
+                }
+
+                // 3. Validate Identity Card based on currentMode
+                if (!errorMessage) {
+                    if (currentMode === 'file') {
+                        const fileInput = document.getElementById('foto_identitas');
+                        if (!fileInput.files || fileInput.files.length === 0) {
+                            errorMessage = 'Silakan unggah foto kartu identitas (KTP/KTM/Kartu Instansi) Anda terlebih dahulu.';
+                        }
+                    } else if (currentMode === 'camera') {
+                        const capturedImg = document.getElementById('captured_image').value;
+                        if (!capturedImg || capturedImg.trim() === '') {
+                            errorMessage = 'Silakan ambil foto identitas Anda terlebih dahulu menggunakan kamera.';
+                        }
+                    }
+                }
+
+                // 4. Validate Booking Dates
+                if (!errorMessage) {
+                    const tglMulai = document.getElementById('tanggal_mulai').value;
+                    const tglSelesai = document.getElementById('tanggal_selesai').value;
+                    if (!tglMulai || tglMulai.trim() === '' || !tglSelesai || tglSelesai.trim() === '') {
+                        errorMessage = 'Silakan tentukan tanggal mulai dan selesai acara.';
+                    }
+                }
+
+                // If error found, prevent submit and show alert banner
+                if (errorMessage) {
+                    event.preventDefault();
+                    alertMsg.innerText = errorMessage;
+                    alertBanner.classList.remove('hidden');
+                    
+                    // Scroll to top of main area smoothly
+                    const mainCanvas = document.querySelector('main');
+                    if (mainCanvas) {
+                        mainCanvas.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    } else {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
                     }
                 }
             });
