@@ -5,7 +5,7 @@
 define('SMTP_HOST', 'smtp.gmail.com');
 define('SMTP_PORT', 465);
 define('SMTP_USER', 'sipakpoliteknikaceh@gmail.com');
-define('SMTP_PASS', 'YOUR_APP_PASSWORD_HERE'); // Silakan ganti dengan Sandi Aplikasi (App Password) Gmail Anda
+define('SMTP_PASS', 'dnszkxhrtdjanizy'); // Sandi Aplikasi (App Password) Gmail Anda
 define('SMTP_FROM', 'sipakpoliteknikaceh@gmail.com');
 define('SMTP_FROM_NAME', 'SIPAK Politeknik Aceh');
 
