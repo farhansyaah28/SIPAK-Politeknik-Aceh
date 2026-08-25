@@ -104,7 +104,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $pdo->prepare("UPDATE transaksi SET status_transaksi = 'Menunggu Pembayaran' WHERE id_transaksi = :id")->execute([':id' => $id_transaksi]);
                 }
 
-                // Notify admin
+                // Ambil email & nama penyewa untuk notifikasi
+                $stmt_user = $pdo->prepare("SELECT email, nama FROM penyewa WHERE id_penyewa = :id");
+                $stmt_user->execute([':id' => $id_penyewa]);
+                $user_info = $stmt_user->fetch();
+                $email_penyewa = $user_info['email'] ?? '';
+                $nama_penyewa = $user_info['nama'] ?? '';
+
+                // Kirim notifikasi email ke penyewa & admin
+                if (!empty($email_penyewa)) {
+                    require_once 'config/email.php';
+                    
+                    // Email untuk Penyewa
+                    $subject_penyewa = "Bukti Transfer Diterima - Kode " . $transaksi['kode_transaksi'];
+                    $body_penyewa = "
+                        <div style='font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;'>
+                            <h2 style='color: #000e3a; border-bottom: 2px solid #fecb00; padding-bottom: 10px;'>Bukti Pembayaran Diterima</h2>
+                            <p>Halo <strong>$nama_penyewa</strong>,</p>
+                            <p>Kami telah menerima bukti transfer pembayaran Anda untuk kegiatan <strong>\"" . $transaksi['nama_kegiatan'] . "\"</strong>.</p>
+                            <p>Rincian Pembayaran:</p>
+                            <table style='width: 100%; border-collapse: collapse; margin-top: 10px;'>
+                                <tr>
+                                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7; font-weight: bold; width: 150px;'>Kode Sewa</td>
+                                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7;'>" . $transaksi['kode_transaksi'] . "</td>
+                                </tr>
+                                <tr>
+                                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7; font-weight: bold;'>Skema Bayar</td>
+                                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7;'>$jenis_pembayaran</td>
+                                </tr>
+                                <tr>
+                                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7; font-weight: bold;'>Jumlah Transfer</td>
+                                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7;'><strong>" . format_rupiah($jumlah_bayar) . "</strong></td>
+                                </tr>
+                            </table>
+                            <p style='margin-top: 20px;'>Bukti transfer saat ini sedang diperiksa dan diverifikasi secara manual oleh Admin Pengelola SIPAK Politeknik Aceh. Kami akan segera mengirimkan email konfirmasi baru setelah proses validasi selesai.</p>
+                            <hr style='border: none; border-top: 1px solid #edf2f7; margin: 30px 0;'>
+                            <p style='font-size: 11px; color: #a0aec0;'>Email ini dikirim secara otomatis oleh Sistem Informasi Penyewaan Aset Kampus (SIPAK) Politeknik Aceh.</p>
+                        </div>
+                    ";
+                    send_mail($email_penyewa, $subject_penyewa, $body_penyewa);
+
+                    // Email untuk Admin
+                    $subject_admin = "[SIPAK] Bukti Pembayaran Baru Masuk - Kode " . $transaksi['kode_transaksi'];
+                    $body_admin = "
+                        <div style='font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;'>
+                            <h2 style='color: #000e3a; border-bottom: 2px solid #fecb00; padding-bottom: 10px;'>Validasi Pembayaran Diperlukan</h2>
+                            <p>Halo Admin,</p>
+                            <p>Penyewa <strong>$nama_penyewa</strong> ($email_penyewa) baru saja mengunggah bukti transfer baru untuk transaksi dengan kode <strong>" . $transaksi['kode_transaksi'] . "</strong>.</p>
+                            <p>Rincian Pembayaran:</p>
+                            <table style='width: 100%; border-collapse: collapse; margin-top: 10px;'>
+                                <tr>
+                                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7; font-weight: bold; width: 150px;'>Kode Sewa</td>
+                                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7;'>" . $transaksi['kode_transaksi'] . "</td>
+                                </tr>
+                                <tr>
+                                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7; font-weight: bold;'>Skema Bayar</td>
+                                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7;'>$jenis_pembayaran</td>
+                                </tr>
+                                <tr>
+                                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7; font-weight: bold;'>Jumlah Transfer</td>
+                                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7;'><strong>" . format_rupiah($jumlah_bayar) . "</strong></td>
+                                </tr>
+                            </table>
+                            <p style='margin-top: 20px;'>Silakan buka panel Admin untuk memeriksa bukti transfer berkas dan memberikan status validasi (Valid/Ditolak).</p>
+                            <p><a href='" . ($_SERVER['REQUEST_SCHEME'] ?? 'http') . "://" . ($_SERVER['HTTP_HOST'] ?? 'localhost') . dirname($_SERVER['PHP_SELF']) . "/admin/pembayaran_validasi.php' style='background-color: #000e3a; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;'>Buka Panel Validasi</a></p>
+                            <hr style='border: none; border-top: 1px solid #edf2f7; margin: 30px 0;'>
+                            <p style='font-size: 11px; color: #a0aec0;'>Email ini dikirim secara otomatis oleh Sistem Informasi Penyewaan Aset Kampus (SIPAK) Politeknik Aceh.</p>
+                        </div>
+                    ";
+                    send_mail(SMTP_USER, $subject_admin, $body_admin);
+                }
+
+                // Notify admin (Sistem internal)
                 add_notification($pdo, null, 1, 'Bukti Transfer Baru', "Penyewa mengunggah bukti bayar $jenis_pembayaran sebesar " . format_rupiah($jumlah_bayar) . " untuk " . $transaksi['kode_transaksi'], "admin/pembayaran_validasi.php");
 
                 set_flash('success', 'Bukti transfer berhasil diunggah! Mohon menunggu verifikasi manual oleh Admin Pengelola.');

@@ -15,10 +15,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_val'])) {
     $status_val    = $_POST['action_val']; // 'Valid' atau 'Ditolak'
     $catatan       = sanitize($_POST['catatan_admin'] ?? '');
 
-    // Fetch payment and transaction details
-    $stmt = $pdo->prepare("SELECT p.*, t.id_transaksi, t.total_pembayaran, t.id_penyewa, t.kode_transaksi 
+    // Fetch payment and transaction details, including renter email, name, building name, and event name
+    $stmt = $pdo->prepare("SELECT p.*, t.id_transaksi, t.total_pembayaran, t.id_penyewa, t.kode_transaksi, t.nama_kegiatan, py.email, py.nama AS nama_penyewa, g.nama_gedung 
                            FROM pembayaran p
                            JOIN transaksi t ON p.id_transaksi = t.id_transaksi
+                           JOIN penyewa py ON t.id_penyewa = py.id_penyewa
+                           JOIN gedung g ON t.id_gedung = g.id_gedung
                            WHERE p.id_pembayaran = :id");
     $stmt->execute([':id' => $id_pembayaran]);
     $payment = $stmt->fetch();
@@ -54,7 +56,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_val'])) {
             $pdo->prepare("UPDATE transaksi SET status_transaksi = :st, id_admin = :id_admin WHERE id_transaksi = :id")
                 ->execute([':st' => $new_trx_status, ':id_admin' => $admin_id, ':id' => $id_transaksi]);
 
-            // Add notification for Penyewa
+            // Kirim email notifikasi validasi pembayaran disetujui
+            if (!empty($payment['email'])) {
+                require_once '../config/email.php';
+                $email_penyewa = $payment['email'];
+                $nama_penyewa = $payment['nama_penyewa'];
+                $kode_transaksi = $payment['kode_transaksi'];
+                $nama_kegiatan = $payment['nama_kegiatan'];
+                $nama_gedung = $payment['nama_gedung'];
+                $jumlah_bayar = $payment['jumlah_bayar'];
+                $jenis_pembayaran = $payment['jenis_pembayaran'];
+                
+                $subject = "Pembayaran Pembokingan Disetujui - Kode $kode_transaksi";
+                $body = "
+                    <div style='font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;'>
+                        <h2 style='color: #2f855a; border-bottom: 2px solid #2f855a; padding-bottom: 10px;'>Pembayaran Valid & Disetujui</h2>
+                        <p>Halo <strong>$nama_penyewa</strong>,</p>
+                        <p>Kami menginformasikan bahwa bukti transfer pembayaran Anda untuk kegiatan <strong>\"$nama_kegiatan\"</strong> di <strong>$nama_gedung</strong> telah <strong>diverifikasi dan dinyatakan VALID</strong> oleh Admin.</p>
+                        <p>Detail Validasi:</p>
+                        <table style='width: 100%; border-collapse: collapse; margin-top: 10px;'>
+                            <tr>
+                                <td style='padding: 8px; border-bottom: 1px solid #edf2f7; font-weight: bold; width: 150px;'>Kode Sewa</td>
+                                <td style='padding: 8px; border-bottom: 1px solid #edf2f7;'>$kode_transaksi</td>
+                            </tr>
+                            <tr>
+                                <td style='padding: 8px; border-bottom: 1px solid #edf2f7; font-weight: bold;'>Skema Bayar</td>
+                                <td style='padding: 8px; border-bottom: 1px solid #edf2f7;'>$jenis_pembayaran</td>
+                            </tr>
+                            <tr>
+                                <td style='padding: 8px; border-bottom: 1px solid #edf2f7; font-weight: bold;'>Jumlah Valid</td>
+                                <td style='padding: 8px; border-bottom: 1px solid #edf2f7;'><strong>" . format_rupiah($jumlah_bayar) . "</strong></td>
+                            </tr>
+                            <tr>
+                                <td style='padding: 8px; border-bottom: 1px solid #edf2f7; font-weight: bold;'>Status Transaksi</td>
+                                <td style='padding: 8px; border-bottom: 1px solid #edf2f7; color: #2f855a; font-weight: bold;'>$new_trx_status</td>
+                            </tr>
+                        </table>
+                        <p style='margin-top: 20px;'>Jadwal sewa gedung Anda saat ini telah **dikunci secara resmi** dalam sistem kalender kami.</p>
+                        <p><a href='" . ($_SERVER['REQUEST_SCHEME'] ?? 'http') . "://" . ($_SERVER['HTTP_HOST'] ?? 'localhost') . dirname(dirname($_SERVER['PHP_SELF'])) . "/riwayat_booking.php' style='background-color: #2f855a; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;'>Lihat Riwayat Booking</a></p>
+                        <hr style='border: none; border-top: 1px solid #edf2f7; margin: 30px 0;'>
+                        <p style='font-size: 11px; color: #a0aec0;'>Email ini dikirim secara otomatis oleh Sistem Informasi Penyewaan Aset Kampus (SIPAK) Politeknik Aceh.</p>
+                    </div>
+                ";
+                send_mail($email_penyewa, $subject, $body);
+            }
+
+            // Add notification for Penyewa (Sistem internal)
             add_notification($pdo, $id_penyewa, $admin_id, "Pembayaran $status_val Disetujui", "Pembayaran " . $payment['jenis_pembayaran'] . " sebesar " . format_rupiah($payment['jumlah_bayar']) . " untuk kode " . $payment['kode_transaksi'] . " telah disetujui (Status: $new_trx_status). Jadwal dikunci.", "riwayat_booking.php");
 
             set_flash('success', "Pembayaran berhasil divalidasi sebagai VALID! Status transaksi diubah menjadi '$new_trx_status' dan jadwal telah resmi dikunci.");
@@ -63,6 +110,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_val'])) {
             $pdo->prepare("UPDATE transaksi SET status_transaksi = 'Ditolak' WHERE id_transaksi = :id")
                 ->execute([':id' => $id_transaksi]);
 
+            // Kirim email notifikasi pembayaran ditolak
+            if (!empty($payment['email'])) {
+                require_once '../config/email.php';
+                $email_penyewa = $payment['email'];
+                $nama_penyewa = $payment['nama_penyewa'];
+                $kode_transaksi = $payment['kode_transaksi'];
+                $nama_kegiatan = $payment['nama_kegiatan'];
+                $nama_gedung = $payment['nama_gedung'];
+                $jumlah_bayar = $payment['jumlah_bayar'];
+                $jenis_pembayaran = $payment['jenis_pembayaran'];
+                
+                $subject = "Pembayaran Ditolak - Kode $kode_transaksi";
+                $body = "
+                    <div style='font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;'>
+                        <h2 style='color: #c53030; border-bottom: 2px solid #c53030; padding-bottom: 10px;'>Bukti Pembayaran Ditolak</h2>
+                        <p>Halo <strong>$nama_penyewa</strong>,</p>
+                        <p>Kami menginformasikan bahwa bukti transfer yang Anda unggah untuk kegiatan <strong>\"$nama_kegiatan\"</strong> telah <strong>DITOLAK</strong> oleh Admin Pengelola.</p>
+                        <p>Detail Penolakan:</p>
+                        <table style='width: 100%; border-collapse: collapse; margin-top: 10px;'>
+                            <tr>
+                                <td style='padding: 8px; border-bottom: 1px solid #edf2f7; font-weight: bold; width: 150px;'>Kode Sewa</td>
+                                <td style='padding: 8px; border-bottom: 1px solid #edf2f7;'>$kode_transaksi</td>
+                            </tr>
+                            <tr>
+                                <td style='padding: 8px; border-bottom: 1px solid #edf2f7; font-weight: bold;'>Skema Bayar</td>
+                                <td style='padding: 8px; border-bottom: 1px solid #edf2f7;'>$jenis_pembayaran</td>
+                            </tr>
+                            <tr>
+                                <td style='padding: 8px; border-bottom: 1px solid #edf2f7; font-weight: bold;'>Alasan Penolakan</td>
+                                <td style='padding: 8px; border-bottom: 1px solid #edf2f7; color: #c53030; font-weight: bold;'>$catatan</td>
+                            </tr>
+                        </table>
+                        <p style='margin-top: 20px;'>Mohon lakukan pengunggahan ulang bukti transfer resmi Anda yang valid melalui portal berikut:</p>
+                        <p><a href='" . ($_SERVER['REQUEST_SCHEME'] ?? 'http') . "://" . ($_SERVER['HTTP_HOST'] ?? 'localhost') . dirname(dirname($_SERVER['PHP_SELF'])) . "/pembayaran_upload.php?id_transaksi=$id_transaksi' style='background-color: #c53030; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;'>Unggah Ulang Bukti Transfer</a></p>
+                        <hr style='border: none; border-top: 1px solid #edf2f7; margin: 30px 0;'>
+                        <p style='font-size: 11px; color: #a0aec0;'>Email ini dikirim secara otomatis oleh Sistem Informasi Penyewaan Aset Kampus (SIPAK) Politeknik Aceh.</p>
+                    </div>
+                ";
+                send_mail($email_penyewa, $subject, $body);
+            }
+
+            // Add notification for Penyewa (Sistem internal)
             add_notification($pdo, $id_penyewa, $admin_id, "Pembayaran Ditolak", "Bukti bayar untuk " . $payment['kode_transaksi'] . " ditolak dengan catatan: " . $catatan, "pembayaran_upload.php?id_transaksi=" . $id_transaksi);
 
             set_flash('warning', "Pembayaran telah DITOLAK. Notifikasi telah dikirimkan ke penyewa.");

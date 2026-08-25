@@ -199,7 +199,82 @@ if (!empty($selected_assets)) {
     }
 }
 
-// Notifikasi ke Admin
+// Ambil email & nama penyewa untuk notifikasi
+$stmt_user = $pdo->prepare("SELECT email, nama FROM penyewa WHERE id_penyewa = :id");
+$stmt_user->execute([':id' => $id_penyewa]);
+$user_info = $stmt_user->fetch();
+$email_penyewa = $user_info['email'] ?? '';
+$nama_penyewa = $user_info['nama'] ?? '';
+
+// Kirim email notifikasi ke penyewa & admin
+if (!empty($email_penyewa)) {
+    require_once 'config/email.php';
+    
+    // Email untuk Penyewa
+    $subject_penyewa = "Pemesanan Gedung Berhasil Dibuat - Kode $kode_transaksi";
+    $body_penyewa = "
+        <div style='font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;'>
+            <h2 style='color: #000e3a; border-bottom: 2px solid #fecb00; padding-bottom: 10px;'>Pemesanan Gedung Berhasil</h2>
+            <p>Halo <strong>$nama_penyewa</strong>,</p>
+            <p>Permohonan pemesanan Anda untuk kegiatan <strong>\"$nama_kegiatan\"</strong> telah berhasil dibuat dalam sistem SIPAK.</p>
+            <p>Rincian Pemesanan:</p>
+            <table style='width: 100%; border-collapse: collapse; margin-top: 10px;'>
+                <tr>
+                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7; font-weight: bold; width: 150px;'>Kode Sewa</td>
+                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7;'>$kode_transaksi</td>
+                </tr>
+                <tr>
+                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7; font-weight: bold;'>Pelaksanaan</td>
+                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7;'>$tanggal_mulai s/d $tanggal_selesai</td>
+                </tr>
+                <tr>
+                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7; font-weight: bold;'>Total Tagihan</td>
+                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7;'><strong>" . format_rupiah($total) . "</strong></td>
+                </tr>
+            </table>
+            <p style='margin-top: 20px;'>Silakan lakukan pengunggahan bukti transfer DP atau Pelunasan pada portal pembayaran berikut untuk mengonfirmasi pesanan Anda:</p>
+            <p><a href='" . ($_SERVER['REQUEST_SCHEME'] ?? 'http') . "://" . ($_SERVER['HTTP_HOST'] ?? 'localhost') . dirname($_SERVER['PHP_SELF']) . "/pembayaran_upload.php?id_transaksi=$id_transaksi' style='background-color: #000e3a; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;'>Unggah Bukti Transfer</a></p>
+            <hr style='border: none; border-top: 1px solid #edf2f7; margin: 30px 0;'>
+            <p style='font-size: 11px; color: #a0aec0;'>Email ini dikirim secara otomatis oleh Sistem Informasi Penyewaan Aset Kampus (SIPAK) Politeknik Aceh.</p>
+        </div>
+    ";
+    send_mail($email_penyewa, $subject_penyewa, $body_penyewa);
+
+    // Email untuk Admin
+    $subject_admin = "[SIPAK] Pemesanan Baru Masuk - Kode $kode_transaksi";
+    $body_admin = "
+        <div style='font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;'>
+            <h2 style='color: #000e3a; border-bottom: 2px solid #fecb00; padding-bottom: 10px;'>Pemesanan Baru Masuk</h2>
+            <p>Halo Admin,</p>
+            <p>Penyewa <strong>$nama_penyewa</strong> ($email_penyewa) telah membuat permohonan pemesanan baru di sistem SIPAK.</p>
+            <p>Rincian Kegiatan:</p>
+            <table style='width: 100%; border-collapse: collapse; margin-top: 10px;'>
+                <tr>
+                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7; font-weight: bold; width: 150px;'>Kode Sewa</td>
+                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7;'>$kode_transaksi</td>
+                </tr>
+                <tr>
+                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7; font-weight: bold;'>Nama Acara</td>
+                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7;'>$nama_kegiatan</td>
+                </tr>
+                <tr>
+                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7; font-weight: bold;'>Pelaksanaan</td>
+                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7;'>$tanggal_mulai s/d $tanggal_selesai</td>
+                </tr>
+                <tr>
+                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7; font-weight: bold;'>Total Tagihan</td>
+                    <td style='padding: 8px; border-bottom: 1px solid #edf2f7;'><strong>" . format_rupiah($total) . "</strong></td>
+                </tr>
+            </table>
+            <p style='margin-top: 20px;'>Silakan pantau dan validasi pembayaran setelah bukti transfer diunggah oleh penyewa.</p>
+            <hr style='border: none; border-top: 1px solid #edf2f7; margin: 30px 0;'>
+            <p style='font-size: 11px; color: #a0aec0;'>Email ini dikirim secara otomatis oleh Sistem Informasi Penyewaan Aset Kampus (SIPAK) Politeknik Aceh.</p>
+        </div>
+    ";
+    send_mail(SMTP_USER, $subject_admin, $body_admin);
+}
+
+// Notifikasi ke Admin (Sistem internal)
 add_notification($pdo, null, 1, 'Pemesanan Baru Masuk', "Penyewa " . $_SESSION['user_name'] . " melakukan booking untuk $nama_kegiatan ($kode_transaksi).", "admin/pembayaran_validasi.php");
 
 set_flash('success', 'Permohonan booking berhasil dibuat! Silakan lakukan pengunggahan bukti transfer DP atau Pelunasan.');
