@@ -358,19 +358,9 @@ if (count($names) > 0) {
                     <h1 class="font-display-md text-display-md text-primary font-bold">Portal Pembayaran Bertahap (Termin)</h1>
                     <p class="text-xs text-on-surface-variant">Lakukan konfirmasi dan unggah bukti transaksi sewa gedung atau aset Anda di bawah ini.</p>
                 </div>
-                <div class="flex items-center gap-2 shrink-0">
-                    <?php if ($transaksi['status_transaksi'] === 'Menunggu Pembayaran'): ?>
-                        <form action="booking_batal.php" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pemesanan gedung ini? Tindakan ini tidak dapat dibatalkan.');" class="inline">
-                            <input type="hidden" name="id_transaksi" value="<?= $id_transaksi ?>">
-                            <button type="submit" class="bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 font-bold px-md h-9 rounded-lg shadow-sm transition-all flex items-center gap-xs text-xs cursor-pointer">
-                                <span class="material-symbols-outlined text-sm text-red-600">cancel</span> Batalkan Booking
-                            </button>
-                        </form>
-                    <?php endif; ?>
-                    <a href="riwayat_booking.php" class="bg-white border border-outline-variant text-primary font-bold px-md h-9 rounded-lg shadow-sm hover:bg-surface-container-low transition-all flex items-center gap-xs text-xs decoration-none">
-                        <span class="material-symbols-outlined text-sm text-[16px]">arrow_back</span> Kembali ke Transaksi
-                    </a>
-                </div>
+                <a href="riwayat_booking.php" class="bg-white border border-outline-variant text-primary font-bold px-md h-9 rounded-lg shadow-sm hover:bg-surface-container-low transition-all flex items-center gap-xs text-xs decoration-none">
+                    <span class="material-symbols-outlined text-sm text-[16px]">arrow_back</span> Kembali ke Transaksi
+                </a>
             </div>
 
             <!-- Bento-style Grid System -->
@@ -475,6 +465,16 @@ if (count($names) > 0) {
                                         <span class="material-symbols-outlined text-sm">send</span> Kirim Bukti Pembayaran
                                     </button>
                                 </form>
+                                <?php if ($transaksi['status_transaksi'] === 'Menunggu Pembayaran'): ?>
+                                    <hr class="border-outline-variant/60 my-sm">
+                                    <form action="booking_batal.php" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pemesanan gedung ini? Tindakan ini tidak dapat dibatalkan.');" class="m-0">
+                                        <input type="hidden" name="id_transaksi" value="<?= $id_transaksi ?>">
+                                        <button type="submit" class="w-full h-9 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 font-bold text-xs rounded-lg flex items-center justify-center gap-xs shadow-xs active:scale-95 transition-all cursor-pointer">
+                                            <span class="material-symbols-outlined text-sm text-red-600">cancel</span>
+                                            <span>Batalkan Pemesanan Gedung Ini</span>
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
                             </div>
                         <?php endif; ?>
                     <?php else: ?>
