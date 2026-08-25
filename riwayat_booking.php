@@ -442,9 +442,19 @@ if (count($names) > 0) {
                                                         Lihat Detail
                                                     </a>
                                                 <?php else: ?>
-                                                    <a href="pembayaran_upload.php?id_transaksi=<?= $b['id_transaksi'] ?>" class="bg-primary text-on-primary font-bold text-[10px] px-2.5 py-1 rounded-lg hover:shadow-md active:scale-95 transition-all decoration-none inline-block">
-                                                        Kelola Pembayaran
-                                                    </a>
+                                                    <div class="flex items-center justify-center gap-1">
+                                                        <a href="pembayaran_upload.php?id_transaksi=<?= $b['id_transaksi'] ?>" class="bg-primary text-on-primary font-bold text-[10px] px-2.5 py-1 rounded-lg hover:shadow-md active:scale-95 transition-all decoration-none inline-block">
+                                                            Kelola Pembayaran
+                                                        </a>
+                                                        <?php if ($status === 'Menunggu Pembayaran'): ?>
+                                                            <form action="booking_batal.php" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pemesanan ini?');" class="inline">
+                                                                <input type="hidden" name="id_transaksi" value="<?= $b['id_transaksi'] ?>">
+                                                                <button type="submit" class="bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 font-bold text-[10px] px-2 py-1 rounded-lg hover:shadow-md transition-all cursor-pointer">
+                                                                    Batal
+                                                                </button>
+                                                            </form>
+                                                        <?php endif; ?>
+                                                    </div>
                                                 <?php endif; ?>
                                             </td>
                                         </tr>
