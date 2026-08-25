@@ -290,6 +290,31 @@ if (count($names) > 0) {
                 </p>
             </div>
 
+            <!-- Flash Messages -->
+            <?php if (isset($_SESSION['flash'])): ?>
+                <?php 
+                $type = $_SESSION['flash']['type'] ?? 'danger';
+                $msgClass = 'bg-error-container text-on-error-container border-error/20';
+                $icon = 'error';
+                $iconClass = 'text-error';
+                
+                if ($type === 'success') {
+                    $msgClass = 'bg-success-green/10 text-success-green border-success-green/20';
+                    $icon = 'check_circle';
+                    $iconClass = 'text-success-green';
+                } elseif ($type === 'warning') {
+                    $msgClass = 'bg-warning-amber/10 text-secondary border-warning-amber/20';
+                    $icon = 'warning';
+                    $iconClass = 'text-secondary';
+                }
+                ?>
+                <div class="<?= $msgClass ?> p-sm rounded-xl border flex items-center gap-xs shadow-sm text-xs">
+                    <span class="material-symbols-outlined text-sm <?= $iconClass ?>"><?= $icon ?></span>
+                    <span class="font-medium"><?= htmlspecialchars($_SESSION['flash']['message']) ?></span>
+                </div>
+                <?php unset($_SESSION['flash']); ?>
+            <?php endif; ?>
+
             <!-- Bento Layout Content -->
             <div class="grid grid-cols-12 gap-md">
                 <!-- Summary Stats (Top Row) -->

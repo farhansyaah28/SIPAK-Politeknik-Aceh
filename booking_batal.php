@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Add notification to admin
                 add_notification($pdo, null, 1, 'Pemesanan Dibatalkan', "Penyewa membatalkan pemesanan pending " . $transaksi['kode_transaksi'] . " secara mandiri.", "admin/booking_kelola.php");
 
-                set_flash('success', 'Pemesanan gedung berhasil dibatalkan.');
+                set_flash('warning', 'Pemesanan gedung berhasil dibatalkan.');
             } else {
                 set_flash('danger', 'Hanya pemesanan dengan status Menunggu Pembayaran yang dapat dibatalkan secara mandiri.');
             }
