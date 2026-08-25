@@ -25,6 +25,11 @@ if (!$transaksi) {
     die("Nota Error: Data transaksi tidak ditemukan.");
 }
 
+// Validasi Status: Nota tagihan tidak dapat dicetak jika status transaksi Dibatalkan atau Ditolak
+if (in_array($transaksi['status_transaksi'], ['Dibatalkan', 'Ditolak'])) {
+    die("Nota Error: Nota tagihan tidak tersedia karena pemesanan telah dibatalkan atau ditolak.");
+}
+
 $id_transaksi = (int)$transaksi['id_transaksi'];
 
 // Fetch all assets selected for this transaction

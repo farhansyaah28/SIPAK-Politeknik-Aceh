@@ -489,10 +489,12 @@ if (count($names) > 0) {
                 <!-- Column Right: Billing Summary & Details -->
                 <div class="col-span-12 lg:col-span-5 space-y-md">
                     <!-- Print Invoice Standalone Action Button -->
-                    <a href="nota.php?token=<?= $transaksi['token_kuitansi'] ?>" target="_blank" class="w-full h-10 bg-white border border-outline-variant hover:border-primary/50 text-primary hover:bg-surface-container-low font-bold text-xs rounded-xl flex items-center justify-center gap-xs shadow-sm transition-all duration-200 decoration-none cursor-pointer">
-                        <span class="material-symbols-outlined text-[18px]">description</span>
-                        <span>Cetak Nota Tagihan (Invoice)</span>
-                    </a>
+                    <?php if (!in_array($transaksi['status_transaksi'], ['Dibatalkan', 'Ditolak'])): ?>
+                        <a href="nota.php?token=<?= $transaksi['token_kuitansi'] ?>" target="_blank" class="w-full h-10 bg-white border border-outline-variant hover:border-primary/50 text-primary hover:bg-surface-container-low font-bold text-xs rounded-xl flex items-center justify-center gap-xs shadow-sm transition-all duration-200 decoration-none cursor-pointer">
+                            <span class="material-symbols-outlined text-[18px]">description</span>
+                            <span>Cetak Nota Tagihan (Invoice)</span>
+                        </a>
+                    <?php endif; ?>
 
                     <!-- Rental Details Card -->
                     <div class="bg-white rounded-2xl p-md border border-outline-variant shadow-soft space-y-sm bento-card text-xs">
