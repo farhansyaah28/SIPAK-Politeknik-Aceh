@@ -107,14 +107,19 @@ function send_mail($to, $subject, $message_html) {
     fwrite($socket, "DATA\r\n");
     if (!$read_response($socket, "354")) { fclose($socket); return false; }
 
-    // Susun Header dan Konten Email HTML
+    // Susun Header dan Konten Email HTML (Dioptimalkan agar tidak masuk folder spam)
     $headers  = "MIME-Version: 1.0\r\n";
     $headers .= "Content-Type: text/html; charset=utf-8\r\n";
+    $headers .= "Content-Transfer-Encoding: 8bit\r\n";
     $headers .= "To: <" . $to . ">\r\n";
     $headers .= "From: \"" . $from_name . "\" <" . $from . ">\r\n";
+    $headers .= "Reply-To: \"" . $from_name . "\" <" . $from . ">\r\n";
     $headers .= "Subject: " . $subject . "\r\n";
     $headers .= "Date: " . date('r') . "\r\n";
     $headers .= "Message-ID: <" . time() . "-" . md5($to) . "@" . ($_SERVER['SERVER_NAME'] ?? 'localhost') . ">\r\n";
+    $headers .= "X-Mailer: PHP/" . phpversion() . "\r\n";
+    $headers .= "X-Priority: 3\r\n";
+    $headers .= "Auto-Submitted: auto-generated\r\n";
 
     $email_body = $headers . "\r\n" . $message_html . "\r\n.\r\n";
     
