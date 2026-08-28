@@ -3,14 +3,14 @@
 // Konfigurasi Akun Pengirim Resmi SIPAK Politeknik Aceh
 
 define('SMTP_HOST', 'smtp.gmail.com');
-define('SMTP_PORT', 465);
-define('SMTP_USER', 'sipakpoliteknikaceh@gmail.com');
-define('SMTP_PASS', 'dnszkxhrtdjanizy'); // Sandi Aplikasi (App Password) Gmail Anda
-define('SMTP_FROM', 'sipakpoliteknikaceh@gmail.com');
+define('SMTP_PORT', 587); // Menggunakan Port 587 agar kompatibel dengan InfinityFree
+define('SMTP_USER', 'sipakpoliteknikaceh00@gmail.com');
+define('SMTP_PASS', 'qeddavxtftcajqky'); // Sandi Aplikasi (App Password) Gmail Anda
+define('SMTP_FROM', 'sipakpoliteknikaceh00@gmail.com');
 define('SMTP_FROM_NAME', 'SIPAK Politeknik Aceh');
 
 /**
- * Mengirim email menggunakan protokol SMTP (SSL Port 465) langsung menggunakan Socket PHP
+ * Mengirim email menggunakan protokol SMTP (Port 587 dengan STARTTLS) langsung menggunakan Socket PHP
  * Tanpa memerlukan dependensi eksternal (PHPMailer/Composer).
  *
  * @param string $to Penerima email
@@ -33,15 +33,15 @@ function send_mail($to, $subject, $message_html) {
     }
 
     $timeout = 10;
-    // Buka koneksi socket ke server SMTP Gmail menggunakan SSL
-    $socket = @fsockopen("ssl://" . $host, $port, $errno, $errstr, $timeout);
+    // Buka koneksi socket ke server SMTP Gmail menggunakan TCP biasa
+    $socket = @fsockopen($host, $port, $errno, $errstr, $timeout);
     if (!$socket) {
         error_log("SMTP Socket Connection Error: $errstr ($errno)");
         return false;
     }
 
-    // Fungsi pembantu untuk membaca respon server SMTP
-    function read_response($socket, $expected_code) {
+    // Fungsi pembantu menggunakan closure untuk membaca respon server SMTP (mencegah fatal error redeclare)
+    $read_response = function($socket, $expected_code) {
         $response = "";
         while ($line = fgets($socket, 512)) {
             $response .= $line;
@@ -55,38 +55,57 @@ function send_mail($to, $subject, $message_html) {
             return false;
         }
         return true;
-    }
+    };
 
     // 1. Baca Greeting awal dari server
-    if (!read_response($socket, "220")) { fclose($socket); return false; }
+    if (!$read_response($socket, "220")) { fclose($socket); return false; }
 
     // 2. Kirim EHLO
     fwrite($socket, "EHLO " . ($_SERVER['SERVER_NAME'] ?? 'localhost') . "\r\n");
-    if (!read_response($socket, "250")) { fclose($socket); return false; }
+    if (!$read_response($socket, "250")) { fclose($socket); return false; }
 
-    // 3. Kirim AUTH LOGIN
+    // 3. Kirim STARTTLS untuk meng-upgrade koneksi ke TLS
+    fwrite($socket, "STARTTLS\r\n");
+    if (!$read_response($socket, "220")) { fclose($socket); return false; }
+
+    // Upgrade koneksi socket ke TLS
+    $crypto_method = STREAM_CRYPTO_METHOD_TLS_CLIENT;
+    if (defined('STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT')) {
+        $crypto_method = STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
+    }
+    if (!@stream_socket_enable_crypto($socket, true, $crypto_method)) {
+        error_log("SMTP Error: Gagal meng-upgrade koneksi socket ke TLS.");
+        fclose($socket);
+        return false;
+    }
+
+    // 4. Kirim EHLO lagi setelah koneksi aman terjalin
+    fwrite($socket, "EHLO " . ($_SERVER['SERVER_NAME'] ?? 'localhost') . "\r\n");
+    if (!$read_response($socket, "250")) { fclose($socket); return false; }
+
+    // 5. Kirim AUTH LOGIN
     fwrite($socket, "AUTH LOGIN\r\n");
-    if (!read_response($socket, "334")) { fclose($socket); return false; }
+    if (!$read_response($socket, "334")) { fclose($socket); return false; }
 
-    // 4. Kirim Username Base64
+    // 6. Kirim Username Base64
     fwrite($socket, base64_encode($username) . "\r\n");
-    if (!read_response($socket, "334")) { fclose($socket); return false; }
+    if (!$read_response($socket, "334")) { fclose($socket); return false; }
 
-    // 5. Kirim Password/App Password Base64
+    // 7. Kirim Password/App Password Base64
     fwrite($socket, base64_encode($password) . "\r\n");
-    if (!read_response($socket, "235")) { fclose($socket); return false; }
+    if (!$read_response($socket, "235")) { fclose($socket); return false; }
 
-    // 6. Kirim MAIL FROM
+    // 8. Kirim MAIL FROM
     fwrite($socket, "MAIL FROM:<" . $from . ">\r\n");
-    if (!read_response($socket, "250")) { fclose($socket); return false; }
+    if (!$read_response($socket, "250")) { fclose($socket); return false; }
 
-    // 7. Kirim RCPT TO
+    // 9. Kirim RCPT TO
     fwrite($socket, "RCPT TO:<" . $to . ">\r\n");
-    if (!read_response($socket, "250")) { fclose($socket); return false; }
+    if (!$read_response($socket, "250")) { fclose($socket); return false; }
 
-    // 8. Kirim DATA
+    // 10. Kirim DATA
     fwrite($socket, "DATA\r\n");
-    if (!read_response($socket, "354")) { fclose($socket); return false; }
+    if (!$read_response($socket, "354")) { fclose($socket); return false; }
 
     // Susun Header dan Konten Email HTML
     $headers  = "MIME-Version: 1.0\r\n";
@@ -101,11 +120,11 @@ function send_mail($to, $subject, $message_html) {
     
     // Kirim isi email
     fwrite($socket, $email_body);
-    if (!read_response($socket, "250")) { fclose($socket); return false; }
+    if (!$read_response($socket, "250")) { fclose($socket); return false; }
 
-    // 9. Kirim QUIT
+    // 11. Kirim QUIT
     fwrite($socket, "QUIT\r\n");
-    read_response($socket, "221");
+    $read_response($socket, "221");
 
     fclose($socket);
     return true;

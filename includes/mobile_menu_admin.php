@@ -131,13 +131,18 @@ document.addEventListener('DOMContentLoaded', () => {
             </nav>
             
             <div class="mt-auto px-md space-y-0.5 border-t border-white/10 pt-md">
-                <div class="flex items-center gap-xs px-xs py-1 mb-2">
-                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white font-bold text-xs shadow-md border border-white/15">
+                <div class="flex items-start gap-xs px-xs py-1 mb-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white font-bold text-xs shadow-md border border-white/15 mt-0.5">
                         <?= strtoupper(substr($admin_name_display, 0, 1)) ?>
                     </div>
                     <div class="flex flex-col overflow-hidden">
                         <p class="text-xs font-semibold text-white truncate leading-none"><?= htmlspecialchars($admin_name_display) ?></p>
                         <p class="text-[9px] text-primary-fixed-dim opacity-70 mt-0.5 truncate uppercase font-bold"><?= $admin_role_display ?></p>
+                        <?php if ($is_penyewa_menu): ?>
+                            <button type="button" onclick="openProfileModal(); toggleMobileDrawer(false);" class="mt-1.5 px-2 py-0.5 bg-white/10 hover:bg-white/20 text-warning-amber hover:text-white rounded text-[8px] font-extrabold uppercase tracking-wider transition-all flex items-center gap-1 w-fit cursor-pointer border-none outline-none">
+                                Edit Profil
+                            </button>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <a class="flex items-center px-md py-2.5 text-primary-fixed-dim hover:bg-error-container/20 hover:text-error rounded-lg mx-2 transition-all decoration-none font-semibold text-xs cursor-pointer" href="<?= $logout_prefix ?>logout.php">

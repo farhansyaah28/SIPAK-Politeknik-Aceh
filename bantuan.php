@@ -496,5 +496,6 @@ require_once 'includes/navbar_tailwind.php';
 </main>
 
 <?php require_once 'includes/footer_tailwind.php'; ?>
+<?php include 'includes/mobile_menu_admin.php'; ?>
 <?php include 'includes/profile_modal.php'; ?>
 <?php endif; ?>

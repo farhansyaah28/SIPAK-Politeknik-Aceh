@@ -812,6 +812,7 @@ document.getElementById('confirmCancelBtn').addEventListener('click', function()
     document.getElementById('batalForm').submit();
 });
 </script>
+<?php include 'includes/mobile_menu_admin.php'; ?>
 <?php include 'includes/profile_modal.php'; ?>
 </body>
 </html>
