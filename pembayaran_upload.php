@@ -423,15 +423,17 @@ if (count($names) > 0) {
 
         <!-- Content Canvas -->
         <main class="p-lg space-y-md">
-            <!-- Header Section -->
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-sm">
-                <div class="space-y-0.5">
-                    <h1 class="font-display-md text-display-md text-primary font-bold">Portal Pembayaran Bertahap (Termin)</h1>
-                    <p class="text-xs text-on-surface-variant">Lakukan konfirmasi dan unggah bukti transaksi sewa gedung atau aset Anda di bawah ini.</p>
-                </div>
+            <!-- Back Button -->
+            <div class="flex items-center">
                 <a href="riwayat_booking.php" class="bg-white border border-outline-variant text-primary font-bold px-md h-9 rounded-lg shadow-sm hover:bg-surface-container-low transition-all flex items-center gap-xs text-xs decoration-none">
-                    <span class="material-symbols-outlined text-sm text-[16px]">arrow_back</span> Kembali ke Transaksi
+                    <span class="material-symbols-outlined text-sm">arrow_back</span> Kembali ke Transaksi
                 </a>
+            </div>
+
+            <!-- Header Section -->
+            <div class="space-y-0.5">
+                <h1 class="font-display-md text-display-md text-primary font-bold">Portal Pembayaran Bertahap (Termin)</h1>
+                <p class="text-xs text-on-surface-variant">Lakukan konfirmasi dan unggah bukti transaksi sewa gedung atau aset Anda di bawah ini.</p>
             </div>
 
             <!-- Bento-style Grid System -->
