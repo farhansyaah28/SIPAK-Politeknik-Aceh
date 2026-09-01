@@ -13,6 +13,21 @@ $total_kegiatan = $pdo->query("SELECT COUNT(*) FROM transaksi WHERE status_trans
 $total_pendapatan = $pdo->query("SELECT COALESCE(SUM(jumlah_bayar), 0) FROM pembayaran WHERE status_validasi = 'Valid'")->fetchColumn();
 $total_gedung = $pdo->query("SELECT COUNT(*) FROM gedung WHERE status = 'Tersedia'")->fetchColumn();
 
+// 1. Total Penyewa
+$total_penyewa = (int)$pdo->query("SELECT COUNT(*) FROM penyewa")->fetchColumn();
+$penyewa_this_month = (int)$pdo->query("SELECT COUNT(*) FROM penyewa WHERE MONTH(created_at) = MONTH(CURRENT_DATE()) AND YEAR(created_at) = YEAR(CURRENT_DATE())")->fetchColumn();
+
+// 2. Transaksi Aktif
+$transaksi_aktif = (int)$pdo->query("SELECT COUNT(*) FROM transaksi WHERE status_transaksi IN ('Menunggu Pembayaran', 'DP', 'Cicilan')")->fetchColumn();
+$trx_aktif_this_month = (int)$pdo->query("SELECT COUNT(*) FROM transaksi WHERE status_transaksi IN ('Menunggu Pembayaran', 'DP', 'Cicilan') AND MONTH(created_at) = MONTH(CURRENT_DATE()) AND YEAR(created_at) = YEAR(CURRENT_DATE())")->fetchColumn();
+
+// 3. Pendapatan Bulan Ini
+$pendapatan_bulan_ini = (float)$pdo->query("SELECT COALESCE(SUM(jumlah_bayar), 0) FROM pembayaran WHERE status_validasi = 'Valid' AND MONTH(tanggal_bayar) = MONTH(CURRENT_DATE()) AND YEAR(tanggal_bayar) = YEAR(CURRENT_DATE())")->fetchColumn();
+
+// 4. Dana DP Hangus (Pembayaran Valid pada transaksi yang Dibatalkan / Ditolak)
+$dp_hangus = (float)$pdo->query("SELECT COALESCE(SUM(p.jumlah_bayar), 0) FROM pembayaran p JOIN transaksi t ON p.id_transaksi = t.id_transaksi WHERE p.status_validasi = 'Valid' AND t.status_transaksi IN ('Dibatalkan', 'Ditolak')")->fetchColumn();
+$dp_hangus_count_month = (int)$pdo->query("SELECT COUNT(DISTINCT t.id_transaksi) FROM pembayaran p JOIN transaksi t ON p.id_transaksi = t.id_transaksi WHERE p.status_validasi = 'Valid' AND t.status_transaksi IN ('Dibatalkan', 'Ditolak') AND MONTH(t.created_at) = MONTH(CURRENT_DATE()) AND YEAR(t.created_at) = YEAR(CURRENT_DATE())")->fetchColumn();
+
 // Fetch building utilization stats
 $stmt_usage = $pdo->query("SELECT g.nama_gedung, COUNT(t.id_transaksi) AS frekuensi
                            FROM gedung g
@@ -244,37 +259,62 @@ if (count($names) > 0) {
                 <p class="text-xs text-on-surface-variant">Transparansi frekuensi okupansi penggunaan gedung &amp; aliran dana masuk kampus Politeknik Aceh.</p>
             </div>
 
-            <!-- Summary Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-md">
-                <!-- Stat Card 1 -->
-                <div class="bg-white p-md rounded-2xl border border-outline-variant shadow-soft flex items-center gap-md bento-card">
-                    <div class="w-10 h-10 rounded-xl bg-primary-container/5 flex items-center justify-center text-primary">
-                        <span class="material-symbols-outlined text-xl">account_balance_wallet</span>
+            <!-- Summary Stats Cards (Executive 4-Grid Design) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
+                <!-- Stat Card 1: Total Penyewa -->
+                <div class="bg-white p-md rounded-2xl border border-outline-variant shadow-soft flex flex-col justify-between bento-card">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="text-xs text-on-surface-variant font-semibold">Total Penyewa</p>
+                            <h3 class="text-xl text-primary font-extrabold mt-1"><?= $total_penyewa ?></h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
+                            <span class="material-symbols-outlined text-xl">group</span>
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-[10px] text-on-surface-variant uppercase font-semibold tracking-wider">Total Pendapatan Valid</p>
-                        <h3 class="text-base text-primary font-black mt-0.5"><?= format_rupiah($total_pendapatan) ?></h3>
-                    </div>
+                    <p class="text-[10px] text-on-surface-variant/80 mt-2 font-medium">+<?= $penyewa_this_month ?> bulan ini</p>
                 </div>
-                <!-- Stat Card 2 -->
-                <div class="bg-white p-md rounded-2xl border border-outline-variant shadow-soft flex items-center gap-md bento-card">
-                    <div class="w-10 h-10 rounded-xl bg-success-green/10 flex items-center justify-center text-success-green">
-                        <span class="material-symbols-outlined text-xl">calendar_month</span>
+
+                <!-- Stat Card 2: Transaksi Aktif -->
+                <div class="bg-white p-md rounded-2xl border border-outline-variant shadow-soft flex flex-col justify-between bento-card">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="text-xs text-on-surface-variant font-semibold">Transaksi Aktif</p>
+                            <h3 class="text-xl text-primary font-extrabold mt-1"><?= $transaksi_aktif ?></h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-100">
+                            <span class="material-symbols-outlined text-xl">pulse_alert</span>
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-[10px] text-on-surface-variant uppercase font-semibold tracking-wider">Kegiatan Terlaksana</p>
-                        <h3 class="text-base text-success-green font-black mt-0.5"><?= $total_kegiatan ?> Acara</h3>
-                    </div>
+                    <p class="text-[10px] text-on-surface-variant/80 mt-2 font-medium">+<?= $trx_aktif_this_month ?> bulan ini</p>
                 </div>
-                <!-- Stat Card 3 -->
-                <div class="bg-white p-md rounded-2xl border border-outline-variant shadow-soft flex items-center gap-md bento-card">
-                    <div class="w-10 h-10 rounded-xl bg-warning-amber/10 flex items-center justify-center text-secondary">
-                        <span class="material-symbols-outlined text-xl">domain</span>
+
+                <!-- Stat Card 3: Pendapatan Bulan Ini -->
+                <div class="bg-white p-md rounded-2xl border border-outline-variant shadow-soft flex flex-col justify-between bento-card">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="text-xs text-on-surface-variant font-semibold">Pendapatan Bulan Ini</p>
+                            <h3 class="text-xl text-primary font-extrabold mt-1"><?= format_rupiah($pendapatan_bulan_ini) ?></h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
+                            <span class="material-symbols-outlined text-xl">payments</span>
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-[10px] text-on-surface-variant uppercase font-semibold tracking-wider">Gedung Siap Sewa</p>
-                        <h3 class="text-base text-warning-amber font-black mt-0.5"><?= $total_gedung ?> Fasilitas</h3>
+                    <p class="text-[10px] text-emerald-600 mt-2 font-semibold">Total valid bulan ini</p>
+                </div>
+
+                <!-- Stat Card 4: Dana DP Hangus -->
+                <div class="bg-white p-md rounded-2xl border border-outline-variant shadow-soft flex flex-col justify-between bento-card">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="text-xs text-on-surface-variant font-semibold">Dana DP Hangus</p>
+                            <h3 class="text-xl text-error-red font-extrabold mt-1"><?= format_rupiah($dp_hangus) ?></h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-100">
+                            <span class="material-symbols-outlined text-xl">local_fire_department</span>
+                        </div>
                     </div>
+                    <p class="text-[10px] text-on-surface-variant/80 mt-2 font-medium"><?= $dp_hangus_count_month ?> transaksi dibatalkan bulan ini</p>
                 </div>
             </div>
 
